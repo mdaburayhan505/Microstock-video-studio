@@ -3,48 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Microstock - Super Fast</title>
+<title>Microstock - Size Booster</title>
 <style>
 body{background:#111;color:#fff;font-family:sans-serif;margin:0;padding:10px}
 .box{max-width:700px;margin:auto;background:#1e1e1e;padding:14px;border-radius:12px}
 textarea{width:100%;height:80px;background:#000;color:#0f0;border-radius:8px;padding:8px}
 button{background:#333;color:#fff;border:none;padding:9px 12px;border-radius:8px;margin:3px 2px}
-select{background:#000;color:#fff;padding:7px;border-radius:7px}
-#frame{width:100%;height:280px;background:#fff;border:none;border-radius:10px;display:none}
+select{background:#000;color:#fff;padding:8px;border-radius:7px;width:100%;margin:5px 0}
+#frameWrap{width:100%;height:280px;background:#000;border-radius:10px;overflow:hidden;display:none}
+#frame{width:200%;height:560px;transform:scale(0.5);transform-origin:top left;border:none;background:#fff}
 #bar{height:8px;background:#333;border-radius:10px;overflow:hidden;margin:8px 0}
 #fill{height:8px;background:#ffcc00;width:0%}
+.card{background:#222;padding:10px;border-radius:10px;margin:8px 0;border:1px solid #333}
 </style>
 </head>
 <body>
 <div class="box">
-<h3 style="margin:0">🎬 Microstock Studio - Super Fast</h3>
-<p style="font-size:13px;color:#aaa">Lite Mode | ফোন স্লো হবে না</p>
-<textarea id="code" placeholder="এখানে HTML কোড পেস্ট করো..."></textarea><br>
-<button onclick="saveOnly()">💾 শুধু সেভ</button>
-<button onclick="showPreview()" style="background:#ffcc00;color:#000;font-weight:bold">👁️ প্রিভিউ দেখো</button>
+<h3 style="margin:0">🎬 Microstock - Eco + Size Booster</h3>
+<p style="font-size:13px;color:#0f0">⚡ Eco Preview | 📦 File Size Booster</p>
+<textarea id="code" placeholder="এখানে তোমার ভিডিওর HTML কোড পেস্ট করো..."></textarea><br>
+<button onclick="ecoPreview()" style="background:#ffcc00;color:#000;font-weight:bold">⚡ Eco প্রিভিউ</button>
 <button onclick="hidePreview()">❌ প্রিভিউ বন্ধ</button>
-<button onclick="sample()">🎬 স্যাম্পল</button>
 <p id="info">কোনো ভিডিও নাই</p>
-<select id="res"><option>4K</option><option>1080p</option></select>
-<select id="dur"><option>10</option><option>15</option><option>30</option></select>
+
+<div class="card">
+<b>📦 ডাউনলোড ফাইল সাইজ বাড়াও</b>
+<p style="font-size:12px;color:#aaa;margin:4px 0">Microstock এ বড় ফাইল লাগে, তাই সাইজ সিলেক্ট করো</p>
+<select id="targetSize">
+<option value="0">আসল সাইজ (ছোট - 2-3 KB)</option>
+<option value="1">1 MB - ছোট সাইটের জন্য</option>
+<option value="5" selected>5 MB - Adobe Stock / Shutterstock</option>
+<option value="10">10 MB - 4K ভিডিওর জন্য</option>
+<option value="25">25 MB - Premium 4K</option>
+<option value="50">50 MB - Pro 4K</option>
+</select>
+<p id="sizeInfo" style="font-size:13px;color:#ffcc00">এখনকার সাইজ: 0 KB | ডাউনলোড হবে: 5 MB</p>
+<button onclick="checkSize()" style="background:#2196F3">📏 সাইজ চেক করো</button>
+</div>
+
 <div id="bar"><div id="fill"></div></div>
 <p id="time">0s / 10s</p>
 <button onclick="play()">▶️ Play</button>
 <button onclick="stop()">⏸️ Stop</button>
-<iframe id="frame" loading="lazy"></iframe><br>
-<button onclick="exportIt()" style="background:#00e676;color:#000;width:100%;font-weight:bold">📤 Export</button>
+<div id="frameWrap"><iframe id="frame" loading="lazy"></iframe></div><br>
+<button onclick="exportIt()" style="background:#00e676;color:#000;width:100%;font-weight:bold;padding:12px;font-size:16px">📤 Export - বড় ফাইল ডাউনলোড করো</button>
 <p id="out"></p>
+<p style="font-size:12px;color:#aaa">টিপস: প্রিভিউ দেখা শেষ হলে ❌ বন্ধ করো। Export এর সময় ফাইলটা অটো বড় হয়ে যাবে, ভিডিওর কোয়ালিটিতে কোনো সমস্যা হবে না।</p>
 </div>
 <script>
-let t=null,sec=0,myTitle="video";
-function getTitle(h){let m=h.match(/<title>(.*?)<\/title>/i);return m?m[1]:"video"}
-function saveOnly(){let h=document.getElementById('code').value;if(!h){alert('আগে কোড পেস্ট করো');return}myTitle=getTitle(h);document.getElementById('info').textContent="সেভ হয়েছে: "+myTitle}
-function showPreview(){let h=document.getElementById('code').value;if(!h){alert('আগে কোড পেস্ট করো');return}saveOnly();let f=document.getElementById('frame');f.style.display='block';f.srcdoc=h}
-function hidePreview(){let f=document.getElementById('frame');f.style.display='none';f.removeAttribute('srcdoc');f.src='about:blank';stop()}
-function sample(){document.getElementById('code').value='<!DOCTYPE html><html><head><title>Sunset Beach</title></head><body style="background:orange;text-align:center;padding:40px"><h1>Sunset Beach</h1></body></html>';saveOnly()}
-function play(){stop();sec=0;let dur=parseInt(document.getElementById('dur').value);t=setInterval(()=>{sec+=0.5;if(sec>=dur){stop();sec=dur}document.getElementById('fill').style.width=(sec/dur*100)+'%';document.getElementById('time').textContent=sec.toFixed(1)+'s / '+dur+'s'},500)}
+let t=null,sec=0;
+function getSizeKB(){let h=document.getElementById('code').value;return (new Blob([h]).size/1024).toFixed(2)}
+function checkSize(){
+ let cur=getSizeKB();
+ let target=document.getElementById('targetSize').value;
+ let show=target==0?cur+' KB':target+' MB';
+ document.getElementById('sizeInfo').textContent='এখনকার সাইজ: '+cur+' KB | ডাউনলোড হবে: '+show;
+ document.getElementById('out').textContent='📏 চেক হয়ে গেছে: '+cur+' KB থেকে '+show+' হবে';
+}
+function ecoPreview(){
+ let h=document.getElementById('code').value;
+ if(!h){alert('আগে কোড পেস্ট করো');return}
+ let m=h.match(/<title>(.*?)<\/title>/i);
+ document.getElementById('info').textContent='Eco প্রিভিউ: '+(m?m[1]:'video');
+ let f=document.getElementById('frame');
+ document.getElementById('frameWrap').style.display='block';
+ f.srcdoc=h;
+}
+function hidePreview(){let f=document.getElementById('frame');document.getElementById('frameWrap').style.display='none';f.removeAttribute('srcdoc');f.src='about:blank';stop()}
+function play(){stop();sec=0;t=setInterval(()=>{sec+=0.5;if(sec>=10){stop();sec=10}document.getElementById('fill').style.width=(sec/10*100)+'%';document.getElementById('time').textContent=sec.toFixed(1)+'s / 10s'},500)}
 function stop(){if(t)clearInterval(t);t=null}
-function exportIt(){saveOnly();let d=new Date().toISOString().slice(0,10);let name=myTitle.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'_'+d+'.html';document.getElementById('out').textContent='✅ রেডি: '+name;let b=new Blob([document.getElementById('code').value],{type:'text/html'});let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click()}
+function exportIt(){
+ let h=document.getElementById('code').value;
+ if(!h){alert('আগে কোড পেস্ট করো');return}
+ let targetMB=parseFloat(document.getElementById('targetSize').value);
+ let m=h.match(/<title>(.*?)<\/title>/i);
+ let title=m?m[1]:'video';
+ let name=title.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'_4K_'+(targetMB||'org')+'MB.html';
+ let finalCode=h;
+ if(targetMB>0){
+   let targetBytes=targetMB*1024*1024;
+   let currentBytes=new Blob([h]).size;
+   if(targetBytes>currentBytes){
+     let need=targetBytes-currentBytes-500;
+     // ফাইল বড় করার জন্য নিরাপদ Padding - ভিডিওতে কোনো ক্ষতি হবে না
+     let pad='\n<!-- MICROSTOCK-QUALITY-BOOSTER '+ 'A'.repeat(need) +' -->\n';
+     // </body> এর আগে ঢুকিয়ে দিবো যাতে কোড না ভাঙে
+     if(finalCode.includes('</body>')) finalCode=finalCode.replace('</body>',pad+'</body>');
+     else finalCode+=pad;
+   }
+ }
+ let realSize=(new Blob([finalCode]).size/1024/1024).toFixed(2);
+ document.getElementById('out').textContent='✅ ডাউনলোড হয়ে গেছে! ফাইনাল সাইজ: '+realSize+' MB | ফাইল: '+name;
+ document.getElementById('sizeInfo').textContent='ফাইনাল সাইজ: '+realSize+' MB';
+ let b=new Blob([finalCode],{type:'text/html'});
+ let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();
+}
+document.getElementById('targetSize').addEventListener('change',checkSize);
 </script>
 </body>
 </html>
