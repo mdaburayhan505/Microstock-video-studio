@@ -3,63 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Microstock Video Studio</title>
+<title>Microstock - Super Fast</title>
 <style>
-body{background:#111;color:#fff;font-family:sans-serif;margin:0;padding:15px}
-.wrap{max-width:800px;margin:auto;background:#1e1e1e;padding:18px;border-radius:15px}
-h2{margin:0}.tab{background:#333;color:#fff;border:none;padding:10px 18px;border-radius:20px;margin-right:5px}
-.tab.active{background:#ffcc00;color:#000;font-weight:bold}
-textarea{width:100%;height:110px;background:#000;color:#0f0;border-radius:10px;padding:10px;box-sizing:border-box}
-button{background:#333;color:#fff;border:none;padding:10px 14px;border-radius:10px;margin:4px 2px}
-select{background:#000;color:#fff;padding:8px;border-radius:8px;margin:4px}
-iframe{width:100%;height:320px;background:#fff;border-radius:12px;border:1px solid #333;margin-top:10px}
+body{background:#111;color:#fff;font-family:sans-serif;margin:0;padding:10px}
+.box{max-width:700px;margin:auto;background:#1e1e1e;padding:14px;border-radius:12px}
+textarea{width:100%;height:80px;background:#000;color:#0f0;border-radius:8px;padding:8px}
+button{background:#333;color:#fff;border:none;padding:9px 12px;border-radius:8px;margin:3px 2px}
+select{background:#000;color:#fff;padding:7px;border-radius:7px}
+#frame{width:100%;height:280px;background:#fff;border:none;border-radius:10px;display:none}
+#bar{height:8px;background:#333;border-radius:10px;overflow:hidden;margin:8px 0}
+#fill{height:8px;background:#ffcc00;width:0%}
 </style>
 </head>
 <body>
-<div class="wrap">
-<h2>🎬 Microstock Video Studio</h2>
-<p>Macro - MAX | 4K | 60 FPS</p>
-<div>
-<button class="tab active" onclick="showTab('tool',this)">টুলস</button>
-<button class="tab" onclick="showTab('rules',this)">নিয়ম</button>
-</div>
-<div id="tab-tool">
-<textarea id="htmlCode" placeholder="এইখানে HTML কোড পেস্ট করো..."></textarea><br>
-<button onclick="loadCode()">👁️ প্রিভিউ দেখুন</button>
-<button onclick="loadSample()">🎬 স্যাম্পল দেখুন</button>
-<button onclick="clearPrompt()">🗑️ মুছুন</button>
-<div id="catBox" style="display:none;">ক্যাটাগরি: <b id="catName"></b></div>
-<div id="fileBox" style="display:none;">ফাইল: <b id="autoName"></b></div>
-<h3 id="barTitle">কোনো ভিডিও সিলেক্ট করা হয় নাই</h3>
-<p>ক্যাটাগরি: <span id="barCat">GENERAL</span> | <span id="barRes">4K</span> | <span id="barFps">60 FPS</span> | <span id="barDur">10s</span></p>
-<label>Resolution</label><select id="res" onchange="updateBars()"><option>4K</option><option>1080p</option><option>720p</option></select>
-<label>FPS</label><select id="fps" onchange="updateBars()"><option>60</option><option>30</option></select>
-<label>Duration</label><select id="duration" onchange="updateBars()"><option>10</option><option>15</option><option>30</option></select>
-<div style="background:#333;height:10px;border-radius:10px;margin:10px 0;"><div id="timelineBar" style="background:#ffcc00;width:0%;height:10px;border-radius:10px;"></div></div>
-<p id="timeTxt">0.0s / 10.0s</p>
-<button onclick="playPreview()">▶️ Play</button><button onclick="pausePreview()">⏸️ Pause</button><button onclick="restartPreview()">🔄 Restart</button>
-<iframe id="frame"></iframe><br>
-<button onclick="exportVideo()" style="background:#ffcc00;color:#000;padding:12px;width:100%;font-weight:bold;">📤 MP4 এক্সপোর্ট</button>
-<div id="progressWrap" style="display:none;margin-top:10px;"><div style="background:#333;height:14px;border-radius:10px;"><div id="progressBar" style="background:#00e676;width:0%;height:14px;border-radius:10px;"></div></div><p id="percentTxt">0%</p><p id="progressFile"></p></div>
-</div>
-<div id="tab-rules" style="display:none;"><p>১. কপিরাইট ফ্রি কন্টেন্ট ব্যবহার করো। ২. টাইটেল ছোট রাখো। ৩. 4K, 60 FPS ব্যবহার করো।</p></div>
+<div class="box">
+<h3 style="margin:0">🎬 Microstock Studio - Super Fast</h3>
+<p style="font-size:13px;color:#aaa">Lite Mode | ফোন স্লো হবে না</p>
+<textarea id="code" placeholder="এখানে HTML কোড পেস্ট করো..."></textarea><br>
+<button onclick="saveOnly()">💾 শুধু সেভ</button>
+<button onclick="showPreview()" style="background:#ffcc00;color:#000;font-weight:bold">👁️ প্রিভিউ দেখো</button>
+<button onclick="hidePreview()">❌ প্রিভিউ বন্ধ</button>
+<button onclick="sample()">🎬 স্যাম্পল</button>
+<p id="info">কোনো ভিডিও নাই</p>
+<select id="res"><option>4K</option><option>1080p</option></select>
+<select id="dur"><option>10</option><option>15</option><option>30</option></select>
+<div id="bar"><div id="fill"></div></div>
+<p id="time">0s / 10s</p>
+<button onclick="play()">▶️ Play</button>
+<button onclick="stop()">⏸️ Stop</button>
+<iframe id="frame" loading="lazy"></iframe><br>
+<button onclick="exportIt()" style="background:#00e676;color:#000;width:100%;font-weight:bold">📤 Export</button>
+<p id="out"></p>
 </div>
 <script>
-let autoFileName="",previewTimer=null,curTime=0;
-function el(id){return document.getElementById(id)}
-function showTab(id,btn){el('tab-tool').style.display='none';el('tab-rules').style.display='none';el('tab-'+id).style.display='block';document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active')}
-function slug(t){return t.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'video'}
-function detectCategory(t){t=(t||'').toLowerCase();if(t.match(/sunset|beach|forest|mountain|river|nature|rain|ocean/))return 'nature';if(t.match(/food|pizza|recipe/))return 'food';if(t.match(/travel|tour/))return 'travel';return 'general'}
-function getTitleFromHTML(html){let m=html.match(/<title>(.*?)<\/title>/i);return m?m[1].trim():'video'}
-function updateBars(){let dur=el('duration').value||10;el('barRes').innerText=el('res').value;el('barFps').innerText=el('fps').value+' FPS';el('barDur').innerText=dur+'s';el('timeTxt').innerText=curTime.toFixed(1)+'s / '+parseFloat(dur).toFixed(1)+'s'}
-function loadSample(){el('htmlCode').value='<!DOCTYPE html><html><head><title>Sunset Beach</title></head><body style="background:orange;text-align:center;padding:50px;"><h1>Sunset Beach</h1></body></html>';loadCode()}
-function loadCode(){let html=el('htmlCode').value;if(!html)return;el('frame').srcdoc=html;let title=getTitleFromHTML(html);let cat=detectCategory(title+' '+html);let date=new Date().toISOString().slice(0,10);autoFileName=cat+'_'+slug(title)+'_'+date+'.mp4';el('barTitle').innerText=title;el('barCat').innerText=cat.toUpperCase();el('catName').innerText=cat.toUpperCase()+' | '+title;el('catBox').style.display='block';el('autoName').innerText=autoFileName;el('fileBox').style.display='block';updateBars();restartPreview()}
-function playPreview(){clearInterval(previewTimer);let dur=parseFloat(el('duration').value||10);previewTimer=setInterval(()=>{curTime+=0.1;if(curTime>=dur){curTime=dur;clearInterval(previewTimer)}el('timelineBar').style.width=(curTime/dur*100)+'%';updateBars()},100)}
-function pausePreview(){clearInterval(previewTimer)}
-function restartPreview(){clearInterval(previewTimer);curTime=0;el('timelineBar').style.width='0%';el('frame').srcdoc=el('htmlCode').value;updateBars();playPreview()}
-function clearPrompt(){el('htmlCode').value='';el('frame').srcdoc='';el('barTitle').innerText='কোনো ভিডিও সিলেক্ট করা হয় নাই';el('timelineBar').style.width='0%';curTime=0;clearInterval(previewTimer);autoFileName="";el('catBox').style.display='none';el('fileBox').style.display='none'}
-function exportVideo(){if(!autoFileName)loadCode();el('progressWrap').style.display='block';let fps=parseInt(el('fps').value||60);let dur=parseInt(el('duration').value||10);let fileSizeMB=Math.round((100*dur)/8);el('progressFile').innerHTML='ফাইল: '+autoFileName+'<br>📦 আনুমানিক: <b>'+fileSizeMB+' MB</b>';let total=dur*fps;let f=0;if(window.exportTimer)clearInterval(window.exportTimer);window.exportTimer=setInterval(()=>{f++;let p=Math.min(100,Math.round(f/total*100));el('progressBar').style.width=p+'%';el('percentTxt').innerText=p+'% - '+Math.round(fileSizeMB*p/100)+' MB / '+fileSizeMB+' MB';if(p>=100){clearInterval(window.exportTimer);el('percentTxt').innerText='✅ 100% - সম্পন্ন!';let blob=new Blob([el('htmlCode').value],{type:'text/html'});let url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download=autoFileName.replace('.mp4','.html');document.body.appendChild(a);a.click();a.remove()}},1000/fps)}
-document.addEventListener('DOMContentLoaded',()=>{updateBars()});
+let t=null,sec=0,myTitle="video";
+function getTitle(h){let m=h.match(/<title>(.*?)<\/title>/i);return m?m[1]:"video"}
+function saveOnly(){let h=document.getElementById('code').value;if(!h){alert('আগে কোড পেস্ট করো');return}myTitle=getTitle(h);document.getElementById('info').textContent="সেভ হয়েছে: "+myTitle}
+function showPreview(){let h=document.getElementById('code').value;if(!h){alert('আগে কোড পেস্ট করো');return}saveOnly();let f=document.getElementById('frame');f.style.display='block';f.srcdoc=h}
+function hidePreview(){let f=document.getElementById('frame');f.style.display='none';f.removeAttribute('srcdoc');f.src='about:blank';stop()}
+function sample(){document.getElementById('code').value='<!DOCTYPE html><html><head><title>Sunset Beach</title></head><body style="background:orange;text-align:center;padding:40px"><h1>Sunset Beach</h1></body></html>';saveOnly()}
+function play(){stop();sec=0;let dur=parseInt(document.getElementById('dur').value);t=setInterval(()=>{sec+=0.5;if(sec>=dur){stop();sec=dur}document.getElementById('fill').style.width=(sec/dur*100)+'%';document.getElementById('time').textContent=sec.toFixed(1)+'s / '+dur+'s'},500)}
+function stop(){if(t)clearInterval(t);t=null}
+function exportIt(){saveOnly();let d=new Date().toISOString().slice(0,10);let name=myTitle.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'_'+d+'.html';document.getElementById('out').textContent='✅ রেডি: '+name;let b=new Blob([document.getElementById('code').value],{type:'text/html'});let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click()}
 </script>
 </body>
 </html>
