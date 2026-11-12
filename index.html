@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rotno Video Studio</title>
+<title>Rotno Video Studio - All Free</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0a2e;color:#fff;font-family:sans-serif;padding:12px}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .top h2{color:#b197fc;font-size:22px}
-.free{background:#1e2a5a;padding:5px 12px;border-radius:20px;color:#8ab4ff;font-weight:bold}
+.free{background:#00e676;color:#000;padding:5px 12px;border-radius:20px;font-weight:bold}
 .tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .tab{padding:8px 14px;border-radius:20px;background:transparent;color:#c9b8ff;font-size:15px}
 .tab.active{border:2px solid #fff;background:#1e1e4a}
@@ -22,120 +22,111 @@ textarea{width:100%;height:110px;background:#0a0a2e;color:#fff;border:1px solid 
 label{font-size:13px;color:#a99fd6;display:block;margin-bottom:5px}
 select,input{width:100%;background:#0a0a2e;border:1px solid #2a2a6a;color:#fff;padding:12px;border-radius:12px;font-size:16px}
 .check{display:flex;gap:8px;align-items:center;margin:12px 0;font-size:14px;color:#a99fd6}
-.trial{font-size:14px;color:#a99fd6;line-height:1.6}
+.trial{font-size:14px;color:#00e676;line-height:1.6;font-weight:bold}
 #frameWrap{width:100%;height:260px;background:#000;border-radius:12px;overflow:hidden;display:none;margin-top:10px}
 #frame{width:200%;height:520px;transform:scale(0.5);transform-origin:top left;border:none;background:#fff}
 #bar{height:8px;background:#222;border-radius:10px;overflow:hidden;margin:10px 0}
 #fill{height:8px;background:#ffcc00;width:0%}
 .wa{position:fixed;bottom:18px;right:14px;background:#25D366;color:#fff;padding:12px 18px;border-radius:30px;font-weight:bold;border:none;font-size:16px;z-index:99}
-.sizeBox{background:#1a1a4a;border:1px dashed #8b5cf6;border-radius:12px;padding:10px;margin-top:10px}
+.sizeBox{background:#1a1a4a;border:1px dashed #00e676;border-radius:12px;padding:10px;margin-top:10px}
+.myPref{background:#1e3a2a;border:1px solid #00e676;border-radius:10px;padding:8px;font-size:13px;color:#a7ffcb;margin-top:8px;display:none}
+/* মুছার বার */
+.clearBar{display:flex;justify-content:space-between;align-items:center;background:#3a0a1a;border:1px solid #ff5252;border-radius:12px;padding:8px 10px;margin:8px 0}
+.clearBar span{font-size:13px;color:#ffb3b3}
+.clearBtn{background:#ff1744;color:#fff;border:none;padding:9px 14px;border-radius:10px;font-weight:bold;font-size:14px}
+.codeCount{font-size:12px;color:#a99fd6;margin:4px 0}
 </style>
 </head>
 <body>
-<div class="top"><h2>Rotno Video Studio</h2><div class="free">FREE</div></div>
-
-<div class="tabs">
-<button class="tab active">🎬 টুল</button>
-<button class="tab">📘 প্রম্পট বানানোর নিয়ম</button>
-<button class="tab">🧰 আরও টুলস</button>
-<button class="tab">⭐ প্ল্যান / আপগ্রেড</button>
-</div>
+<div class="top"><h2>Rotno Video Studio</h2><div class="free">ALL FREE ✅</div></div>
+<div class="tabs"><button class="tab active">🎬 টুল</button><button class="tab">📘 প্রম্পট বানানোর নিয়ম</button><button class="tab">🧰 আরও টুলস</button><button class="tab">⭐ সব ফ্রি</button></div>
 
 <div class="card">
-<textarea id="code" placeholder="<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;background:#020817;
-}"></textarea>
-<div class="row">
-<button class="btn" onclick="loadFile()">📁 ফাইল</button>
-<button class="btn" onclick="sample()">নমুনা</button>
-<button class="btn" onclick="clearAll()">মুছুন</button>
+<textarea id="code" oninput="updateCount()" placeholder="এখানে তোমার ভিডিওর HTML কোড পেস্ট করো..."></textarea>
+<p id="codeCount" class="codeCount">কোড: 0 অক্ষর | খালি আছে</p>
+
+<!-- 🗑️ মুছার বার -->
+<div class="clearBar">
+<span id="clearText">🗑️ পেস্ট করা কোড মুছে ফেলো</span>
+<button class="clearBtn" onclick="clearAll()">🗑️ মুছে ফেলো</button>
 </div>
+
+<div class="row"><button class="btn" onclick="loadFile()">📁 ফাইল</button><button class="btn" onclick="sample()">নমুনা</button><button class="btn" onclick="clearAll()">মুছুন</button></div>
 <button class="btn-main" onclick="ecoPreview()">👁️ প্রিভিউ দেখুন</button>
 <div id="frameWrap"><iframe id="frame" loading="lazy"></iframe></div>
 <p id="info" style="font-size:13px;color:#8ab4ff;margin-top:8px">কোনো ভিডিও নাই</p>
 <div id="bar"><div id="fill"></div></div>
 <p id="time" style="font-size:13px;color:#aaa">0s / 10s</p>
-<div class="row">
-<button class="btn" onclick="play()">▶️ Play</button>
-<button class="btn" onclick="hidePreview()">❌ প্রিভিউ বন্ধ</button>
-</div>
+<div class="row"><button class="btn" onclick="play()">▶️ Play</button><button class="btn" onclick="hidePreview()">❌ প্রিভিউ বন্ধ</button></div>
 </div>
 
 <div class="card">
 <div class="grid">
-<div><label>সাইজ / রেজোলিউশন</label><select id="res"><option>ল্যান্ডস্কেপ 4K 3840x2160</option><option>ল্যান্ডস্কেপ 1080p</option><option>ল্যান্ডস্কেপ 720p</option><option>পোর্ট্রেট 1080x1920</option></select></div>
+<div style="grid-column:span 2"><label>📐 সাইজ / রেজোলিউশন - সব ফ্রি ✅</label>
+<select id="res" onchange="changeRes()">
+<option value="landscape-720|1280x720|16:9">ল্যান্ডস্কেপ 720p ✅ ফ্রি</option>
+<option value="vertical-720|720x1280|9:16">ভার্টিকাল 720p ✅ ফ্রি</option>
+<option value="landscape-1080|1920x1080|16:9">ল্যান্ডস্কেপ Full HD 1080p ✅ ফ্রি</option>
+<option value="vertical-1080|1080x1920|9:16">ভার্টিকাল Full HD 1080p ✅ ফ্রি</option>
+<option value="square-1080|1080x1080|1:1">স্কয়ার 1080 ✅ ফ্রি</option>
+<option value="landscape-1440|2560x1440|16:9">ল্যান্ডস্কেপ 1440p ✅ ফ্রি</option>
+<option value="landscape-4k|3840x2160|16:9">ল্যান্ডস্কেপ 4K 3840x2160 ✅ ফ্রি</option>
+<option value="vertical-4k|2160x3840|9:16">ভার্টিকাল 4K 2160x3840 ✅ ফ্রি</option>
+<option value="square-4k|2160x2160|1:1">স্কয়ার 2160x2160 ✅ ফ্রি</option>
+</select>
+<div id="myPref" class="myPref">💾 তোমার পছন্দ সেভ করা আছে: <b id="prefText"></b></div>
+</div>
 <div><label>ফ্রেমরেট (fps)</label><select id="fps"><option>30</option><option>15 - Eco (ফাস্ট)</option><option>60</option></select></div>
 <div><label>সময় (সেকেন্ড)</label><input id="dur" value="10"></div>
-<div><label>কোয়ালিটি</label><select id="quality"><option>ম্যাক্স</option><option>মাঝারি</option><option>লো</option></select></div>
+<div><label>কোয়ালিটি</label><select id="quality"><option>ম্যাক্স ✅ ফ্রি</option><option>মাঝারি ✅ ফ্রি</option><option>লো ✅ ফ্রি</option></select></div>
+<div><label>আমার পছন্দ</label><button class="btn" onclick="savePref()" style="width:100%;background:#00e676;color:#000;font-weight:bold">💾 পছন্দ সেভ করো</button></div>
 </div>
 
 <div class="sizeBox">
-<b>📦 ডাউনলোড ফাইল সাইজ বাড়াও</b>
-<p style="font-size:12px;color:#aaa;margin:4px 0">Microstock এর জন্য বড় ফাইল লাগবে</p>
-<select id="targetSize">
+<b>📦 ডাউনলোড ফাইল সাইজ বাড়াও ✅ ফ্রি</b>
+<select id="targetSize" style="margin-top:6px">
 <option value="0">আসল সাইজ (ছোট)</option>
-<option value="1">1 MB</option>
-<option value="5" selected>5 MB - Adobe / Shutterstock</option>
-<option value="10">10 MB - 4K ভিডিও</option>
-<option value="25">25 MB - Premium</option>
-<option value="50">50 MB - Pro</option>
+<option value="1">1 MB ✅ ফ্রি</option>
+<option value="5" selected>5 MB ✅ ফ্রি</option>
+<option value="10">10 MB - 4K ভিডিও ✅ ফ্রি</option>
+<option value="25">25 MB ✅ ফ্রি</option>
+<option value="50">50 MB ✅ ফ্রি</option>
 </select>
 <p id="sizeInfo" style="font-size:13px;color:#ffcc00;margin-top:5px">এখনকার সাইজ: 0 KB | ডাউনলোড হবে: 5 MB</p>
 </div>
 
 <label class="check"><input type="checkbox" checked> এক্সপোর্ট শেষ হলেই অটো ডাউনলোড হবে</label>
-<p class="trial">ট্রায়াল শেষ। ফ্রি: শুধু 720p আনলিমিটেড • 1080p/1440p/4K = 🔒 Pro</p>
-<button class="btn-main" onclick="exportIt()">⬇ MP4 এক্সপোর্ট করুন</button>
+<p class="trial">✅ সব ফ্রি আনলিমিটেড! কোনো Pro লক নাই।</p>
+<button class="btn-main" onclick="exportIt()">⬇ MP4 এক্সপোর্ট করুন - ফ্রি</button>
 <p id="out" style="font-size:13px;color:#00e676;margin-top:8px"></p>
 <p style="font-size:13px;color:#8ab4ff;margin-top:6px">✅ প্রিভিউ চলছে। ঠিক থাকলে MP4 এক্সপোর্ট করুন</p>
 </div>
-
 <button class="wa" onclick="window.open('https://wa.me/8800000000000')">💬 WhatsApp</button>
 <input type="file" id="fileInput" hidden accept=".html,.txt">
-
 <script>
 let t=null,sec=0;
-function sample(){document.getElementById('code').value='<!DOCTYPE html><html><head><title>Sunset Beach</title></head><body style="background:orange;text-align:center;padding:40px"><h1>Sunset Beach 4K</h1><p>Rotno Video Studio</p></body></html>';ecoPreview()}
-function clearAll(){document.getElementById('code').value='';hidePreview();document.getElementById('info').textContent='মুছে ফেলা হয়েছে';}
-function loadFile(){document.getElementById('fileInput').click()}
-document.getElementById('fileInput').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{document.getElementById('code').value=r.result};r.readAsText(f)});
-function ecoPreview(){
- let h=document.getElementById('code').value;
- if(!h){alert('আগে কোড পেস্ট করো');return}
- let m=h.match(/<title>(.*?)<\/title>/i);
- document.getElementById('info').textContent='✅ Eco প্রিভিউ চলছে: '+(m?m[1]:'video')+' | 15 FPS - স্লো হবে না';
- let f=document.getElementById('frame');
- document.getElementById('frameWrap').style.display='block';
- f.srcdoc=h;
+window.onload=()=>{
+ let s=localStorage.getItem('rotno_res'); if(s){document.getElementById('res').value=s;changeRes();showPref()}
+ let sz=localStorage.getItem('rotno_size'); if(sz) document.getElementById('targetSize').value=sz;
+ let d=localStorage.getItem('rotno_dur'); if(d) document.getElementById('dur').value=d;
+ updateCount();
 }
-function hidePreview(){let f=document.getElementById('frame');document.getElementById('frameWrap').style.display='none';f.removeAttribute('srcdoc');f.src='about:blank';stop()}
-function play(){stop();sec=0;let dur=parseInt(document.getElementById('dur').value)||10;t=setInterval(()=>{sec+=0.5;if(sec>=dur){stop();sec=dur}document.getElementById('fill').style.width=(sec/dur*100)+'%';document.getElementById('time').textContent=sec.toFixed(1)+'s / '+dur+'s'},500)}
-function stop(){if(t)clearInterval(t);t=null}
-function exportIt(){
- let h=document.getElementById('code').value;
- if(!h){alert('আগে কোড পেস্ট করো');return}
- let targetMB=parseFloat(document.getElementById('targetSize').value);
- let m=h.match(/<title>(.*?)<\/title>/i);
- let title=m?m[1]:'video';
- let name=title.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'_4K_'+(targetMB||'org')+'MB.html';
- let finalCode=h;
- if(targetMB>0){
-   let targetBytes=targetMB*1024*1024;
-   let cur=new Blob([h]).size;
-   if(targetBytes>cur){
-     let need=targetBytes-cur-500;
-     let pad='\n<!-- ROTNO-QUALITY-BOOSTER '+ 'A'.repeat(need) +' -->\n';
-     if(finalCode.includes('</body>')) finalCode=finalCode.replace('</body>',pad+'</body>');
-     else finalCode+=pad;
-   }
- }
- let realSize=(new Blob([finalCode]).size/1024/1024).toFixed(2);
- document.getElementById('out').textContent='✅ ডাউনলোড হয়ে গেছে! ফাইনাল সাইজ: '+realSize+' MB | '+name;
- document.getElementById('sizeInfo').textContent='ফাইনাল সাইজ: '+realSize+' MB';
- let b=new Blob([finalCode],{type:'text/html'});
- let a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();
+function updateCount(){
+ let v=document.getElementById('code').value;
+ document.getElementById('codeCount').textContent='কোড: '+v.length+' অক্ষর | '+(v.length==0?'খালি আছে':'পেস্ট করা আছে - মুছতে চাইলে নিচের লাল বার চাপো');
+ document.getElementById('clearText').textContent=v.length==0?'🗑️ কোড খালি আছে':'🗑️ পেস্ট করা কোড মুছে ফেলো ('+v.length+' অক্ষর)';
 }
-</script>
-</body>
-</html>
+function showPref(){let txt=document.getElementById('res').options[document.getElementById('res').selectedIndex].text;document.getElementById('myPref').style.display='block';document.getElementById('prefText').textContent=txt}
+function savePref(){
+ localStorage.setItem('rotno_res',document.getElementById('res').value);
+ localStorage.setItem('rotno_size',document.getElementById('targetSize').value);
+ localStorage.setItem('rotno_dur',document.getElementById('dur').value);
+ showPref();
+ document.getElementById('out').textContent='💾 সেভ হয়ে গেছে! পরের বার এই পছন্দই থাকবে';
+}
+function changeRes(){
+ let v=document.getElementById('res').value; let ratio=v.split('|')[2];
+ let wrap=document.getElementById('frameWrap');
+ if(ratio=='9:16'){wrap.style.height='340px';wrap.style.maxWidth='200px';wrap.style.margin='10px auto'}
+ else if(ratio=='1:1'){wrap.style.height='260px';wrap.style.maxWidth='260px';wrap.style.margin='10px auto'}
+ else{wrap.style.height='260px';wrap.style.maxWidth
