@@ -27,12 +27,12 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 </head>
 <body>
 <div class="top"><b>Video Studio</b><span class="free">FREE</span></div>
-<p class="small">১. কোড দাও -> ২. প্রিভিউ দেখো -> ৩. সাইজ বেছে এক্সপোর্ট করো</p>
+<p class="small"></p>
 
 <!-- ১. প্রিভিউ সবার উপরে -->
 <div class="box">
-<div id="frameWrap">
-<div id="previewPlaceholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:15px;background:#fff">প্রিভিউ এখানে আসবে</div>
+<div id="frameWhite">
+<div id="previewPlaceholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:auto;font-size:08px;background:#auto"></div>
 <iframe id="stage" sandbox="allow-scripts allow-same-origin" style="position:relative;z-index:2"></iframe></div>
 <p id="msg" style="color:#a7f3d0">কোড পেস্ট করো, প্রিভিউ এখানে আসবে</p>
 <p id="sizeShow" style="color:#facc15;font-weight:bold">
@@ -42,7 +42,7 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 <div class="box">
 <p>HTML কোড পেস্ট করো</p>
 <textarea id="code" placeholder="এখানে HTML CODE পেস্ট করো..."></textarea>
-<p id="cnt">কোড: 0 অক্ষর</p>
+<p id="cnt"></p>
 <div style="display:flex;gap:8px">
 <button class="btn" onclick="loadSample()">নমুনা</button>
 <button class="btn" onclick="clearCode()">মুছুন</button>
@@ -112,7 +112,7 @@ function showPreview(){
   changeShape();
   var iframe=document.getElementById('stage');
   iframe.srcdoc=makeFullHtml(h);
-  document.getElementById('msg').innerText='✅ প্রিভিউ চলছে - পছন্দ হলে নিচে থেকে সাইজ বেছে এক্সপোর্ট করো';
+  document.getElementById('msg').innerText='';
 }
 
 async function doExport(){
