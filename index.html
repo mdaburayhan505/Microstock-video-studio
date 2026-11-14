@@ -79,15 +79,17 @@ function loadSample(){
   document.getElementById('code').value='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0}html,body{width:100%;height:100%;overflow:hidden;background:#030713}.sun{width:140px;height:140px;background:#fff200;border-radius:50%;position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 80px 30px #fff200;animation:sun 3s ease-in-out infinite alternate}@keyframes sun{from{top:20%}to{top:45%}}.sea{position:absolute;bottom:0;width:100%;height:35%;background:linear-gradient(#00c6ff,#0072ff)}.title{position:absolute;top:62%;width:100%;text-align:center;color:white;font-size:32px;font-weight:bold}</style></head><body><div class="sun"></div><div class="sea"></div><div class="title">Sunset Beach</div></body></html>';
   showPreview();
 }
-function changeShape(){
+function setBoxHeight(){
   var r=getRes();
   var w=document.getElementById('frameWrap');
   if(r.H>r.W) w.style.height='380px';
   else if(r.W===r.H) w.style.height='320px';
   else w.style.height='220px';
+}
+function changeShape(){
+  setBoxHeight();
   var iframe=document.getElementById('stage');
   iframe.style.width='100%'; iframe.style.height='100%'; iframe.style.transform='none';
-  if(document.getElementById('code').value.length>10) showPreview();
 }
 function makeFullHtml(h){
   if(h.indexOf('<html')!==-1){
@@ -96,7 +98,6 @@ function makeFullHtml(h){
   }
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}</style></head><body>'+h+'</body></html>';
 }
-// এক্সপোর্টের জন্য ফিক্সড সাইজের HTML - কোনায় যাবে না
 function makeExportHtml(h,W,H){
   var fix='<style>html,body{width:'+W+'px!important;height:'+H+'px!important;min-width:'+W+'px!important;min-height:'+H+'px!important;overflow:hidden!important;margin:0!important;padding:0!important;position:relative!important}</style><meta name="viewport" content="width='+W+'">';
   if(h.indexOf('<html')!==-1){
@@ -110,8 +111,9 @@ function showPreview(){
   if(!h || h.length<10){ document.getElementById('msg').innerText='⚠️ আগে কোড পেস্ট করো'; return; }
   document.getElementById('cnt').innerText='কোড: '+h.length+' অক্ষর';
   document.getElementById('previewPlaceholder').style.display='none';
-  changeShape();
+  setBoxHeight();
   var iframe=document.getElementById('stage');
+  iframe.style.width='100%'; iframe.style.height='100%'; iframe.style.transform='none';
   iframe.srcdoc='';
   setTimeout(function(){ iframe.srcdoc=makeFullHtml(h); },30);
   document.getElementById('msg').innerText='';
@@ -143,11 +145,9 @@ async function doExport(){
   var doc=null;
   try{ doc=iframe.contentDocument; }catch(e){}
   if(!doc || !doc.body){ document.getElementById('out').innerText='⚠️ প্রিভিউ লোড হয় নাই, আবার প্রিভিউ দেখুন চাপ দাও'; btn.disabled=false; return; }
-  // এক্সপোর্টের সময় ফিক্সড সাইজে লোড - মাঝখানে থাকবে
   iframe.srcdoc=makeExportHtml(h,W,H);
   await new Promise(function(res){setTimeout(res,1000)});
   try{ doc=iframe.contentDocument; }catch(e){}
-  // iframe কে ফুল সাইজে রাখা, কিন্তু স্ক্রিনের বাইরে না - ভিতরে স্ক্রল না হয়
   iframe.style.width='100%'; iframe.style.height='100%';
   var canvas=document.getElementById('recCanvas');
   canvas.width=W; canvas.height=H;
@@ -173,7 +173,6 @@ async function doExport(){
     a.href=lastBlobUrl;
     a.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4';
     document.body.appendChild(a); a.click(); a.remove();
-    // আবার নরমাল প্রিভিউতে ফিরে যাওয়া
     showPreview();
     setTimeout(function(){
       document.getElementById('out').innerText='✅ ডাউনলোড হয়ে গেছে! সাইজ: '+W+'x'+H+' | সময়: '+dur+' সেকেন্ড | ফাইল: '+(blob.size/1024/1024).toFixed(2)+' MB';
@@ -195,11 +194,9 @@ async function doExport(){
     setProg(pct,'🎬 রেকর্ড হচ্ছে '+pct+'% ... '+Math.ceil((totalMs-elapsed)/1000)+'s বাকি - স্ক্রল করবা না');
     if(!useDirectCanvas){
       try{
-        // অ্যানিমেশনকে ১ ফ্রেম আগাইতে দেওয়া - মোশন চলবে
         if(doc.defaultView) await new Promise(function(res){ doc.defaultView.requestAnimationFrame(function(){res()}); });
         await new Promise(function(res){setTimeout(res,10)});
         var shot=await html2canvas(doc.body,{backgroundColor:'#000000',scale:1,windowWidth:W,windowHeight:H,width:W,height:H,x:0,y:0,useCORS:true,logging:false});
-        // ঠিক মাঝখানে, ফুল ফ্রেমে আঁকা - কোনায় যাবে না
         ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
         ctx.drawImage(shot,0,0,W,H);
       }catch(e){}
