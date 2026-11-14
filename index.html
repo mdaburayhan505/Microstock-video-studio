@@ -13,7 +13,7 @@ body{margin:0;background:#0b1023;color:#fff;font-family:sans-serif;padding:10px}
 .free{background:#1e3a8a;padding:4px 10px;border-radius:8px;font-size:12px}
 .box{background:#131a33;border:1px solid #26315c;border-radius:18px;padding:12px;margin:10px 0}
 #frameWrap{background:#fff;border-radius:14px;overflow:hidden;width:100%;height:220px;display:block;position:relative}
-#stage{width:100%;height:100%;border:0;background:#000;display:block}
+#stage{width:100%;height:100%;border:0;background:#000;display:block;transform-origin:0 0}
 #previewPlaceholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;background:#fff;z-index:1}
 textarea{width:100%;height:130px;background:#0a0f22;color:#cbd5e1;padding:12px;border:1px solid #26315c;border-radius:14px;font-size:13px;outline:none}
 .btn{padding:11px 14px;background:#1e293b;color:#fff;border:1px solid #334155;border-radius:12px;font-weight:bold}
@@ -31,14 +31,12 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 <body>
 <div class="top"><b>Video Studio</b><span class="free">FREE</span></div>
 <p class="small"></p>
-
 <div class="box">
 <div id="frameWrap">
 <div id="previewPlaceholder">প্রিভিউ এখানে আসবে</div>
 <iframe id="stage" sandbox="allow-scripts allow-same-origin" style="position:relative;z-index:2"></iframe></div>
 <p id="msg" style="color:#a7f3d0">কোড পেস্ট করো, প্রিভিউ এখানে আসবে</p>
 </div>
-
 <div class="box">
 <p>HTML কোড পেস্ট করো</p>
 <textarea id="code" placeholder="এখানে HTML CODE পেস্ট করো..."></textarea>
@@ -49,7 +47,6 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 </div>
 <button class="btn-main" style="margin-top:10px" onclick="showPreview()">👁️ প্রিভিউ দেখুন</button>
 </div>
-
 <div class="box">
 <p style="font-weight:bold">৩. তোমার পছন্দের সাইজ বেছে নাও</p>
 <div class="grid">
@@ -73,9 +70,7 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 <p id="out"></p>
 <button id="dlBtn" class="btn-dl">⬇ এখানে চাপ দিয়ে MP4 ডাউনলোড করো</button>
 </div>
-
 <canvas id="recCanvas" width="1280" height="720" style="display:none"></canvas>
-
 <script>
 let lastBlobUrl = null;
 function getRes(){ var v=document.getElementById('res').value.split('x'); return {W:parseInt(v[0]), H:parseInt(v[1])}; }
@@ -84,12 +79,26 @@ function loadSample(){
   document.getElementById('code').value='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0}html,body{width:100%;height:100%;overflow:hidden;background:#030713}.sun{width:140px;height:140px;background:#fff200;border-radius:50%;position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 80px 30px #fff200;animation:sun 3s ease-in-out infinite alternate}@keyframes sun{from{top:20%}to{top:45%}}.sea{position:absolute;bottom:0;width:100%;height:35%;background:linear-gradient(#00c6ff,#0072ff)}.title{position:absolute;top:62%;width:100%;text-align:center;color:white;font-size:32px;font-weight:bold}</style></head><body><div class="sun"></div><div class="sea"></div><div class="title">Sunset Beach</div></body></html>';
   showPreview();
 }
-function changeShape(){
+// প্রিভিউ বক্সে ফিট করানো - রেট কমিয়ে বক্সের ভিতরে রাখা
+function fitPreview(){
   var r=getRes();
-  var w=document.getElementById('frameWrap');
-  if(r.H>r.W) w.style.height='380px';
-  else if(r.W===r.H) w.style.height='320px';
-  else w.style.height='220px';
+  var wrap=document.getElementById('frameWrap');
+  var iframe=document.getElementById('stage');
+  var boxW=wrap.clientWidth;
+  var boxH=220;
+  if(r.H>r.W) boxH=380;
+  else if(r.W===r.H) boxH=320;
+  else boxH=220;
+  wrap.style.height=boxH+'px';
+  // আসল সাইজে রেখে ছোট করে দেখানো - বাইরে যাবে না
+  var scale=Math.min(boxW/r.W, boxH/r.H);
+  iframe.style.width=r.W+'px';
+  iframe.style.height=r.H+'px';
+  iframe.style.transform='scale('+scale+')';
+  iframe.style.transformOrigin='0 0';
+}
+function changeShape(){
+  fitPreview();
   if(document.getElementById('code').value.length>10) showPreview();
 }
 function makeFullHtml(h){
@@ -101,11 +110,7 @@ function showPreview(){
   if(!h || h.length<10){ document.getElementById('msg').innerText='⚠️ আগে কোড পেস্ট করো'; return; }
   document.getElementById('cnt').innerText='কোড: '+h.length+' অক্ষর';
   document.getElementById('previewPlaceholder').style.display='none';
-  var r=getRes();
-  var w=document.getElementById('frameWrap');
-  if(r.H>r.W) w.style.height='380px';
-  else if(r.W===r.H) w.style.height='320px';
-  else w.style.height='220px';
+  fitPreview();
   var iframe=document.getElementById('stage');
   iframe.srcdoc='';
   setTimeout(function(){ iframe.srcdoc=makeFullHtml(h); },30);
@@ -131,9 +136,9 @@ async function doExport(){
   var btn=document.getElementById('exportBtn');
   btn.disabled=true;
   document.getElementById('dlBtn').style.display='none';
-  setProg(0,'🎬 রেকর্ড হচ্ছে 0% ... স্ক্রল করবা না');
+  setProg(0,'⏳ প্রিভিউ লোড হচ্ছে...');
   showPreview();
-  await new Promise(function(res){setTimeout(res,1200)});
+  await new Promise(function(res){setTimeout(res,1500)});
   var iframe=document.getElementById('stage');
   var doc=null;
   try{ doc=iframe.contentDocument; }catch(e){}
@@ -157,28 +162,27 @@ async function doExport(){
     if(lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
     lastBlobUrl=URL.createObjectURL(blob);
     setProg(100,'✅ MP4 রেডি! ডাউনলোড হচ্ছে 100% ...');
-    // এই ট্যাব থেকেই সরাসরি ডাউনলোড
     var a=document.createElement('a');
     a.href=lastBlobUrl;
     a.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function(){
-      document.getElementById('out').innerText='✅ ডাউনলোড হয়ে গেছে! সাইজ: '+W+'x'+H+' | ফাইল: '+(blob.size/1024/1024).toFixed(2)+' MB';
+      document.getElementById('out').innerText='✅ ডাউনলোড হয়ে গেছে! সাইজ: '+W+'x'+H+' | সময়: '+dur+' সেকেন্ড | ফাইল: '+(blob.size/1024/1024).toFixed(2)+' MB';
       btn.disabled=false; btn.innerText='⬇ এই সাইজে MP4 এক্সপোর্ট করুন';
-      // আবার দরকার হলে এই বাটনেও ডাউনলোড হবে
       var dl=document.getElementById('dlBtn');
       dl.style.display='block';
       dl.onclick=function(){ var a2=document.createElement('a'); a2.href=lastBlobUrl; a2.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4'; a2.click(); };
     },800);
   };
-  rec.start();
-  setTimeout(function(){ if(rec.state!=='inactive'){ try{rec.stop();}catch(e){} } }, dur*1000+2000);
-  var start=performance.now();
+  var totalMs = dur*1000;
+  var start = performance.now();
+  rec.start(250);
+  setTimeout(function(){ if(rec.state!=='inactive'){ try{rec.stop();}catch(e){} } }, totalMs+300);
   async function loop(){
     var elapsed=performance.now()-start;
-    var pct=Math.min(99, Math.floor((elapsed/(dur*1000))*100));
-    if(elapsed>=dur*1000){ if(rec.state!=='inactive') rec.stop(); return; }
-    setProg(pct,'🎬 রেকর্ড হচ্ছে '+pct+'% ... স্ক্রল করবা না');
+    if(elapsed>=totalMs){ if(rec.state!=='inactive') rec.stop(); return; }
+    var pct=Math.min(99, Math.floor((elapsed/totalMs)*100));
+    setProg(pct,'🎬 রেকর্ড হচ্ছে '+pct+'% ... '+Math.ceil((totalMs-elapsed)/1000)+'s বাকি - স্ক্রল করবা না');
     if(!useDirectCanvas){
       try{
         var scale=W / Math.max(1, doc.body.clientWidth);
@@ -195,6 +199,7 @@ document.getElementById('code').addEventListener('input',function(){
   document.getElementById('cnt').innerText='কোড: '+this.value.length+' অক্ষর';
 });
 changeShape();
+window.addEventListener('resize',fitPreview);
 </script>
 </body>
 </html>
