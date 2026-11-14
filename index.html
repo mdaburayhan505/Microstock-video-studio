@@ -33,8 +33,6 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 <div class="box">
 <div id="frameWrap"><iframe id="stage" sandbox="allow-scripts allow-same-origin"></iframe></div>
 <p id="msg" style="color:#a7f3d0">কোড পেস্ট করো, প্রিভিউ এখানে আসবে</p>
-<p>⚪ <span id="time">0.0s</span> &nbsp; <span id="frameInfo"></span></p>
-<div style="height:8px;background:#334155;border-radius:10px;overflow:hidden"><div id="fill" style="height:100%;background:#facc15;width:0%"></div></div>
 <p id="sizeShow" style="color:#facc15;font-weight:bold">📐 প্রিভিউ সাইজ: 1280x720</p>
 </div>
 
@@ -171,9 +169,6 @@ async function doExport(){
   var start=performance.now(); var frame=0; var total=dur*fps;
   async function loop(){
     var elapsed=performance.now()-start;
-    document.getElementById('time').innerText=(elapsed/1000).toFixed(1)+'s';
-    document.getElementById('fill').style.width=Math.min(100,elapsed/(dur*1000)*100)+'%';
-    document.getElementById('frameInfo').innerText='ফ্রেম '+frame+'/'+total+' • '+W+'x'+H;
     if(elapsed>=dur*1000){ if(rec.state!=='inactive') rec.stop(); return; }
     if(!useDirectCanvas){
       try{
