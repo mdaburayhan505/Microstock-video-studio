@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Microstock Video Stutitletitle>
+<title>Video Studio</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0f172a;color:#fff;font-family:sans-serif;padding:14px}
@@ -14,7 +14,7 @@ body{margin:0;background:#0f172a;color:#fff;font-family:sans-serif;padding:14px}
 #frameWrap{background:#fff;border-radius:14px;overflow:hidden;width:100%;height:220px;display:block;position:relative}
 #previewPlaceholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:15px;background:#fff;z-index:1}
 #stage{width:100%;height:100%;border:0;background:#000;position:relative;z-index:2}
-.note{margin:10px 0;font-size:14px}
+.note{margin:10px 0;font-size:14px;line-height:1.6}
 .note b{color:#facc15}
 .card{background:#1e293b;border-radius:14px;padding:14px;margin-top:12px}
 .card h3{margin:0 0 10px;font-size:17px}
@@ -28,7 +28,7 @@ select{width:100%;padding:12px;border-radius:10px;background:#0f172a;color:#fff;
 </head>
 <body>
 
-<div class="top"><h2>Microstock Video Studio</h2><span class="free">FREE</span></div>
+<div class="top"><h2>Video Studio</h2><span class="free">FREE</span></div>
 <div class="steps">১. কোড দাও -> ২. প্রিভিউ দেখো -> ৩. সাইজ বেছে এক্সপোর্ট করো</div>
 
 <div id="frameWrap">
@@ -58,29 +58,24 @@ var codeInput=document.getElementById('codeInput');
 codeInput.addEventListener('input',function(){
 document.getElementById('count').textContent='কোড: '+codeInput.value.length+' অক্ষর';
 });
-
 function showPreview(){
 var code=codeInput.value.trim();
 if(!code){alert('আগে কোড পেস্ট করো');return;}
 document.getElementById('previewPlaceholder').style.display='none';
-// কোডে <html> না থাকলেও যাতে চলে, পুরা পেজ বানিয়ে দেওয়া
 var fullCode=code;
 if(code.indexOf('<html')===-1){
 fullCode='<!DOCTYPE html><html><head><meta charset="utf-8"><style>html,body{margin:0;width:100%;height:100%;overflow:hidden}</style></head><body>'+code+'</body></html>';
 }
 var iframe=document.getElementById('stage');
-iframe.srcdoc=fullCode;
-// প্লে নিশ্চিত করতে আবার লোড
-setTimeout(function(){ iframe.srcdoc=fullCode; },50);
+iframe.srcdoc='';
+setTimeout(function(){ iframe.srcdoc=fullCode; },30);
 }
-
 function clearCode(){
 codeInput.value='';
 document.getElementById('count').textContent='কোড: 0 অক্ষর';
 document.getElementById('previewPlaceholder').style.display='flex';
 document.getElementById('stage').srcdoc='';
 }
-
 function exportCode(){
 var code=codeInput.value.trim();
 if(!code){alert('আগে কোড পেস্ট করো');return;}
