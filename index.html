@@ -344,16 +344,6 @@ return fix + h;
 }
 return '<!DOCTYPE html><html><head><meta charset="UTF-8">' + fix + '</head><body>' + h + '</body></html>';
 }
-function resetPreviewIframe() {
-var iframe = document.getElementById('stage');
-iframe.style.position = '';
-iframe.style.left = '';
-iframe.style.top = '';
-iframe.style.zIndex = '';
-iframe.style.width = '100%';
-iframe.style.height = '100%';
-iframe.style.visibility = 'visible';
-}
 function showPreview() {
 var h = document.getElementById('code').value;
 if (!h || h.length < 10) {
@@ -364,7 +354,6 @@ document.getElementById('cnt').innerText = 'কোড: ' + h.length + ' অক�
 document.getElementById('previewPlaceholder').style.display = 'none';
 changeShape();
 var iframe = document.getElementById('stage');
-resetPreviewIframe();
 iframe.srcdoc = makeFullHtml(h);
 document.getElementById('msg').innerText = '✅ প্রিভিউ লোড হয়েছে';
 }
@@ -395,24 +384,26 @@ var btn = document.getElementById('exportBtn');
 btn.disabled = true;
 document.getElementById('dlBtn').style.display = 'none';
 setProg(0, '⏳ প্রিভিউ লোড হচ্ছে...');
-var iframe = document.getElementById('stage');
-document.getElementById('previewPlaceholder').style.display = 'none';
-document.getElementById('msg').innerText = '🎬 রেকর্ড হচ্ছে, পেজটা এমনই থাকবে...';
-// FIX: এক্সপোর্টের সময় iframe কে পর্দার বাইরে সরানো, যাতে পেজ জুম-আউট না হয়
-iframe.style.position = 'fixed';
-iframe.style.left = '-3000px';
-iframe.style.top = '0px';
-iframe.style.zIndex = '1';
-iframe.style.width = W + 'px';
-iframe.style.height = H + 'px';
-iframe.style.visibility = 'visible';
-iframe.srcdoc = makeExportHtml(h, W, H);
+document.getElementById('msg').innerText = '🎬 রেকর্ড হচ্ছে, তুমি উপরে নিচে স্ক্রল করতে পারবা...';
+// FIX: প্রিভিউর iframe কে আর নাড়বো না। এক্সপোর্টের জন্য আলাদা লুকানো iframe।
+var expIframe = document.createElement('iframe');
+expIframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
+expIframe.style.position = 'fixed';
+expIframe.style.left = '-9999px';
+expIframe.style.top = '-9999px';
+expIframe.style.width = W + 'px';
+expIframe.style.height = H + 'px';
+expIframe.style.border = '0';
+expIframe.style.pointerEvents = 'none';
+expIframe.style.visibility = 'visible';
+document.body.appendChild(expIframe);
+expIframe.srcdoc = makeExportHtml(h, W, H);
 await new Promise(function(res) {
 setTimeout(res, 1200);
 });
 var doc = null;
 try {
-doc = iframe.contentDocument;
+doc = expIframe.contentDocument;
 } catch (e) {
 doc = null;
 }
@@ -420,8 +411,9 @@ if (!doc || !doc.body) {
 document.getElementById('out').innerText = '⚠️ প্রিভিউ লোড হয় নাই';
 btn.disabled = false;
 btn.innerText = '⬇ এই সাইজে MP4 এক্সপোর্ট করুন';
-resetPreviewIframe();
-showPreview();
+if (expIframe.parentNode) {
+expIframe.parentNode.removeChild(expIframe);
+}
 return;
 }
 var canvas = document.getElementById('recCanvas');
@@ -489,8 +481,9 @@ a2.href = lastBlobUrl;
 a2.download = 'video-' + W + 'x' + H + '-' + Date.now() + '.mp4';
 a2.click();
 };
-resetPreviewIframe();
-showPreview();
+if (expIframe.parentNode) {
+expIframe.parentNode.removeChild(expIframe);
+}
 }, 800);
 };
 rec.start(250);
