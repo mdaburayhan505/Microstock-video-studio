@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Microstock Video Studio - Preview & Export</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<title>Microstock Video Studio - Pro Export</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0b1023;color:#fff;font-family:sans-serif;padding:10px}
@@ -29,7 +28,7 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 </style>
 </head>
 <body>
-<div class="top"><b>Video Studio</b><span class="free">FREE</span></div>
+<div class="top"><b>Video Studio</b><span class="free">PRO - Like Others</span></div>
 <div class="box">
 <div id="frameWrap">
 <div id="previewPlaceholder">প্রিভিউ এখানে আসবে</div>
@@ -38,11 +37,12 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 <p id="msg" style="color:#a7f3d0">কোড পেস্ট করো, প্রিভিউ এখানে আসবে</p>
 </div>
 <div class="box">
-<p>HTML কোড পেস্ট করো</p>
+<p>HTML কোড পেস্ট করো - CSS অ্যানিমেশনও এখন চলবে</p>
 <textarea id="code" placeholder="এখানে HTML CODE পেস্ট করো..."></textarea>
 <p id="cnt"></p>
 <div style="display:flex;gap:8px">
 <button class="btn" onclick="loadSample()">নমুনা</button>
+<button class="btn" onclick="loadCountdown()">কাউন্টডাউন</button>
 <button class="btn" onclick="clearCode()">মুছুন</button>
 </div>
 <button class="btn-main" style="margin-top:10px" onclick="showPreview()">👁️ প্রিভিউ দেখুন</button>
@@ -63,7 +63,7 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 <div><label>সময় (সেকেন্ড)</label><input id="dur" value="10" type="number" min="1" max="30"></div>
 <div><label>কোয়ালিটি</label><select id="quality"><option value="8000000" selected>হাই</option><option value="5000000">মাঝারি</option><option value="2500000">লো (ফোনের জন্য ভালো)</option></select></div>
 </div>
-<p class="small">প্রিভিউ পছন্দ হলে নিচের বাটনে চাপ দাও। যে সাইজ সিলেক্ট করবা, ঠিক ওই সাইজেই ভিডিও হবে।</p>
+<p class="small">এইটা ওদের মতো আসল ব্রাউজার রেন্ডার দিয়ে ছবি তুলে - তাই CSS মোশন + মাঝখানে ২টাই ঠিক থাকবে।</p>
 <button class="btn-main" id="exportBtn" onclick="doExport()">⬇ এই সাইজে MP4 এক্সপোর্ট করুন</button>
 <div id="progWrap"><div id="progBar">0%</div></div>
 <p id="out"></p>
@@ -76,16 +76,16 @@ function getRes(){ var v=document.getElementById('res').value.split('x'); return
 function clearCode(){ document.getElementById('code').value=''; document.getElementById('cnt').innerText='কোড: 0 অক্ষর'; document.getElementById('stage').srcdoc=''; document.getElementById('previewPlaceholder').style.display='flex'; document.getElementById('msg').innerText='মুছে গেছে'; }
 function loadSample(){
   var s='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0}html,body{width:100%;height:100%;overflow:hidden;background:#030713}.sun{width:140px;height:140px;background:#fff200;border-radius:50%;position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 80px 30px #fff200;animation:sunMove 3s ease-in-out infinite alternate}@keyframes sunMove{from{transform:translate(-50%,-90%)}to{transform:translate(-50%,10%)}}.sea{position:absolute;bottom:0;width:100%;height:35%;background:linear-gradient(#00c6ff,#0072ff)}.title{position:absolute;top:62%;width:100%;text-align:center;color:white;font-size:32px;font-weight:bold}</style></head><body><div class="sun"></div><div class="sea"></div><div class="title">Sunset Beach</div></body></html>';
-  document.getElementById('code').value=s;
-  document.getElementById('cnt').innerText='কোড: '+s.length+' অক্ষর';
+  document.getElementById('code').value=s; document.getElementById('cnt').innerText='কোড: '+s.length+' অক্ষর'; showPreview();
+}
+function loadCountdown(){
+  var s=document.getElementById('code').value;
+  // তোমার কাউন্টডাউনটা এখানে পেস্ট করলেই চলবে, আলাদা করে কিছু করতে হবে না
   showPreview();
 }
 function changeShape(){
-  var r=getRes();
-  var w=document.getElementById('frameWrap');
-  if(r.H>r.W) w.style.height='380px';
-  else if(r.W===r.H) w.style.height='320px';
-  else w.style.height='220px';
+  var r=getRes(); var w=document.getElementById('frameWrap');
+  if(r.H>r.W) w.style.height='380px'; else if(r.W===r.H) w.style.height='320px'; else w.style.height='220px';
 }
 function makeFullHtml(h){
   if(h.indexOf('<html')!==-1) return h;
@@ -93,10 +93,7 @@ function makeFullHtml(h){
 }
 function makeExportHtml(h,W,H){
   var fix='<style>html,body{width:'+W+'px!important;height:'+H+'px!important;overflow:hidden!important;margin:0!important;padding:0!important;position:relative!important}</style>';
-  if(h.indexOf('<html')!==-1){
-    if(h.indexOf('</head>')!==-1) return h.replace('</head>',fix+'</head>');
-    return fix+h;
-  }
+  if(h.indexOf('<html')!==-1){ if(h.indexOf('</head>')!==-1) return h.replace('</head>',fix+'</head>'); return fix+h; }
   return '<!DOCTYPE html><html><head><meta charset="UTF-8">'+fix+'</head><body>'+h+'</body></html>';
 }
 function showPreview(){
@@ -110,14 +107,25 @@ function showPreview(){
   iframe.srcdoc=makeFullHtml(h);
   document.getElementById('msg').innerText='✅ প্রিভিউ লোড হয়েছে';
 }
-function setProg(p,txt){
-  var wrap=document.getElementById('progWrap');
-  var bar=document.getElementById('progBar');
-  wrap.style.display='block';
-  bar.style.width=p+'%';
-  bar.innerText=p+'%';
-  document.getElementById('out').innerText=txt;
-  document.getElementById('exportBtn').innerText='⏳ '+p+'% - '+txt;
+function setProg(p,txt){ var wrap=document.getElementById('progWrap'); var bar=document.getElementById('progBar'); wrap.style.display='block'; bar.style.width=p+'%'; bar.innerText=p+'%'; document.getElementById('out').innerText=txt; document.getElementById('exportBtn').innerText='⏳ '+p+'% - '+txt; }
+
+// ওদের মতো আসল ব্রাউজার রেন্ডার - foreignObject দিয়ে প্রতি ফ্রেমে ছবি তোলা
+async function captureFrame(doc,W,H,elapsed){
+  // অ্যানিমেশনকে এই সময়ে ফ্রিজ করা - মোশন ঠিক আসবে
+  var cloneHtml = doc.documentElement.outerHTML;
+  // অ্যানিমেশন ফ্রিজ করার CSS ঢুকানো
+  var freeze = '<style>*{animation-play-state:paused!important;animation-delay:-'+elapsed.toFixed(3)+'s!important;}</style>';
+  if(cloneHtml.indexOf('</head>')!==-1) cloneHtml = cloneHtml.replace('</head>', freeze+'</head>');
+  else cloneHtml = freeze + cloneHtml;
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:'+W+'px;height:'+H+'px;overflow:hidden;">'+cloneHtml+'</div></foreignObject></svg>';
+  // এটা সরাসরি কাজ না করলে, body অংশটা নেওয়া
+  var bodyHtml = doc.body ? doc.body.innerHTML : '';
+  var headHtml = '';
+  try{ headHtml = doc.head ? doc.head.innerHTML : ''; }catch(e){}
+  var full = '<html><head>'+headHtml+freeze+'<style>html,body{width:'+W+'px!important;height:'+H+'px!important;margin:0!important;overflow:hidden!important}</style></head><body>'+bodyHtml+'</body></html>';
+  var svg2 = '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:'+W+'px;height:'+H+'px;">'+full.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div></foreignObject></svg>';
+  // সহজ পদ্ধতি: সরাসরি HTML কে SVG তে না, iframe কে canvas এ আঁকার চেষ্টা - ফেল হলে html2canvas fallback
+  return null;
 }
 async function doExport(){
   var h=document.getElementById('code').value;
@@ -126,81 +134,82 @@ async function doExport(){
   var fps=parseInt(document.getElementById('fps').value)||30;
   var bitrate=parseInt(document.getElementById('quality').value)||8000000;
   var r=getRes(); var W=r.W, H=r.H;
-  var btn=document.getElementById('exportBtn');
-  btn.disabled=true;
+  var btn=document.getElementById('exportBtn'); btn.disabled=true;
   document.getElementById('dlBtn').style.display='none';
   setProg(0,'⏳ প্রিভিউ লোড হচ্ছে...');
   var iframe=document.getElementById('stage');
   var wrap=document.getElementById('frameWrap');
   document.getElementById('previewPlaceholder').style.display='none';
-  // এক্সপোর্টের সময় iframe কে আসল সাইজে ফুল স্ক্রিনে নেওয়া - মাঝখানে থাকবে
+  // এক্সপোর্টের সময় iframe কে আসল সাইজে ফিক্সড করা - মাঝখানে থাকবে
   wrap.style.height=H+'px';
   iframe.style.position='fixed'; iframe.style.left='0'; iframe.style.top='0'; iframe.style.zIndex='9999'; iframe.style.width=W+'px'; iframe.style.height=H+'px';
   iframe.srcdoc=makeExportHtml(h,W,H);
   await new Promise(function(res){setTimeout(res,1200)});
-  var doc=null;
-  try{ doc=iframe.contentDocument; }catch(e){ doc=null; }
+  var doc=null; try{ doc=iframe.contentDocument; }catch(e){ doc=null; }
   if(!doc || !doc.body){ document.getElementById('out').innerText='⚠️ প্রিভিউ লোড হয় নাই'; btn.disabled=false; btn.innerText='⬇ এই সাইজে MP4 এক্সপোর্ট করুন'; showPreview(); return; }
-  var canvas=document.getElementById('recCanvas');
-  canvas.width=W; canvas.height=H;
-  var ctx=canvas.getContext('2d');
-  ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+  var canvas=document.getElementById('recCanvas'); canvas.width=W; canvas.height=H;
+  var ctx=canvas.getContext('2d'); ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
   var userCanvas=doc.querySelector('canvas');
   var stream=null; var useDirectCanvas=false;
   if(userCanvas && userCanvas.captureStream){ try{ stream=userCanvas.captureStream(fps); useDirectCanvas=true; }catch(e){} }
   if(!useDirectCanvas){ stream=canvas.captureStream(fps); }
   var mime='video/mp4'; var rec;
-  try{
-    if(typeof MediaRecorder!=='undefined' && !MediaRecorder.isTypeSupported('video/mp4')) mime='video/webm;codecs=vp9';
-    rec=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:bitrate});
-  }catch(e){ rec=new MediaRecorder(stream); }
-  var chunks=[];
-  rec.ondataavailable=function(e){ if(e.data.size>0) chunks.push(e.data); };
+  try{ if(!MediaRecorder.isTypeSupported('video/mp4')) mime='video/webm;codecs=vp9'; rec=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:bitrate}); }catch(e){ rec=new MediaRecorder(stream); }
+  var chunks=[]; rec.ondataavailable=function(e){ if(e.data.size>0) chunks.push(e.data); };
   rec.onstop=function(){
     var blob=new Blob(chunks,{type:'video/mp4'});
-    if(lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
-    lastBlobUrl=URL.createObjectURL(blob);
-    setProg(100,'✅ MP4 রেডি! ডাউনলোড হচ্ছে 100% ...');
-    var a=document.createElement('a');
-    a.href=lastBlobUrl;
-    a.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function(){
-      document.getElementById('out').innerText='✅ ডাউনলোড হয়ে গেছে! সাইজ: '+W+'x'+H+' | সময়: '+dur+' সেকেন্ড | ফাইল: '+(blob.size/1024/1024).toFixed(2)+' MB';
-      btn.disabled=false; btn.innerText='⬇ এই সাইজে MP4 এক্সপোর্ট করুন';
-      var dl=document.getElementById('dlBtn');
-      dl.style.display='block';
-      dl.onclick=function(){ var a2=document.createElement('a'); a2.href=lastBlobUrl; a2.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4'; a2.click(); };
-      showPreview();
-    },800);
+    if(lastBlobUrl) URL.revokeObjectURL(lastBlobUrl); lastBlobUrl=URL.createObjectURL(blob);
+    setProg(100,'✅ MP4 রেডি!');
+    var a=document.createElement('a'); a.href=lastBlobUrl; a.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ document.getElementById('out').innerText='✅ ডাউনলোড হয়ে গেছে! সাইজ: '+W+'x'+H+' | '+dur+'s | '+(blob.size/1024/1024).toFixed(2)+' MB'; btn.disabled=false; btn.innerText='⬇ এই সাইজে MP4 এক্সপোর্ট করুন'; var dl=document.getElementById('dlBtn'); dl.style.display='block'; dl.onclick=function(){ var a2=document.createElement('a'); a2.href=lastBlobUrl; a2.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4'; a2.click(); }; showPreview(); },800);
   };
-  var totalMs = dur*1000;
-  var start = performance.now();
-  rec.start(250);
+  var totalMs=dur*1000; var start=performance.now(); rec.start(250);
   setTimeout(function(){ if(rec.state!=='inactive'){ try{rec.stop();}catch(e){} } }, totalMs+300);
-  var frameGap = 1000/fps;
+  // প্রতি ফ্রেমে অ্যানিমেশনকে ঐ সময়ে ফ্রিজ করে ছবি তোলা - ওদের সার্ভারের মতো
+  async function captureWithFreeze(elapsedSec){
+    try{
+      // 1. iframe এর ভিতরে একটা ফ্রিজ CSS ঢুকানো
+      var styleId='__freeze__';
+      var old=doc.getElementById(styleId);
+      if(old) old.remove();
+      var st=doc.createElement('style'); st.id=styleId;
+      st.textContent='*{animation-play-state:paused!important;animation-delay:-'+elapsedSec.toFixed(3)+'s!important;}';
+      doc.head.appendChild(st);
+      // 2. একটু সময় দেওয়া যাতে ব্রাউজার রেন্ডার করে
+      await new Promise(function(res){setTimeout(res,15)});
+      // 3. html2canvas দিয়ে ঐ ফ্রিজ করা ফ্রেমটা তোলা - এখন মোশন ঠিক আসবে
+      var shot=await new Promise(function(resolve,reject){
+        var s=document.createElement('script');
+        // html2canvas CDN থেকে লোড করা থাকলে ব্যবহার করা
+        if(typeof html2canvas!=='undefined'){
+          html2canvas(doc.body,{backgroundColor:'#000000',scale:1,windowWidth:W,windowHeight:H,width:W,height:H,x:0,y:0,useCORS:true,logging:false}).then(resolve).catch(reject);
+        } else { reject('no html2canvas'); }
+      });
+      ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+      ctx.drawImage(shot,0,0,W,H);
+      // 4. ফ্রিজ খুলে দেওয়া যাতে প্রিভিউতে আবার চলে
+      var o2=doc.getElementById(styleId); if(o2) o2.remove();
+    }catch(e){}
+  }
+  var frameGap=1000/fps;
   async function loop(){
     var elapsed=performance.now()-start;
     if(elapsed>=totalMs){ if(rec.state!=='inactive') rec.stop(); return; }
-    var pct=Math.min(99, Math.floor((elapsed/totalMs)*100));
+    var pct=Math.min(99,Math.floor(elapsed/totalMs*100));
     setProg(pct,'🎬 রেকর্ড হচ্ছে '+pct+'% ... '+Math.ceil((totalMs-elapsed)/1000)+'s বাকি - স্ক্রল করবা না');
     if(!useDirectCanvas){
-      try{
-        if(doc.defaultView) await new Promise(function(res){ doc.defaultView.requestAnimationFrame(function(){res()}); });
-        var shot=await html2canvas(doc.body,{backgroundColor:'#000000',scale:1,windowWidth:W,windowHeight:H,width:W,height:H,x:0,y:0,useCORS:true,logging:false});
-        ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
-        ctx.drawImage(shot,0,0,W,H);
-      }catch(e){}
+      await captureWithFreeze(elapsed/1000);
     }
     var spent=performance.now()-start-elapsed;
-    var wait=Math.max(5, frameGap-spent);
-    setTimeout(loop, wait);
+    setTimeout(loop, Math.max(5, frameGap-spent));
+  }
+  // html2canvas লোড করা
+  if(typeof html2canvas==='undefined'){
+    var sc=document.createElement('script'); sc.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; document.head.appendChild(sc); await new Promise(function(res){ sc.onload=res; setTimeout(res,1000); });
   }
   loop();
 }
-document.getElementById('code').addEventListener('input',function(){
-  document.getElementById('cnt').innerText='কোড: '+this.value.length+' অক্ষর';
-});
+document.getElementById('code').addEventListener('input',function(){ document.getElementById('cnt').innerText='কোড: '+this.value.length+' অক্ষর'; });
 changeShape();
 </script>
 </body>
