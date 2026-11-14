@@ -14,6 +14,7 @@ body{margin:0;background:#0b1023;color:#fff;font-family:sans-serif;padding:10px}
 .box{background:#131a33;border:1px solid #26315c;border-radius:18px;padding:12px;margin:10px 0}
 #frameWrap{background:#fff;border-radius:14px;overflow:hidden;width:100%;height:220px;display:block;position:relative}
 #stage{width:100%;height:100%;border:0;background:#000;display:block}
+#previewPlaceholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;background:#fff;z-index:1}
 textarea{width:100%;height:130px;background:#0a0f22;color:#cbd5e1;padding:12px;border:1px solid #26315c;border-radius:14px;font-size:13px;outline:none}
 .btn{padding:11px 14px;background:#1e293b;color:#fff;border:1px solid #334155;border-radius:12px;font-weight:bold}
 .btn-main{width:100%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);color:#fff;padding:14px;font-size:17px;font-weight:900;border:none;border-radius:14px}
@@ -31,11 +32,11 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 
 <!-- ১. প্রিভিউ সবার উপরে -->
 <div class="box">
-<div id="frameWhite">
-<div id="previewPlaceholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:auto;font-size:08px;background:#auto"></div>
+<div id="frameWrap">
+<div id="previewPlaceholder">প্রিভিউ এখানে আসবে</div>
 <iframe id="stage" sandbox="allow-scripts allow-same-origin" style="position:relative;z-index:2"></iframe></div>
 <p id="msg" style="color:#a7f3d0">কোড পেস্ট করো, প্রিভিউ এখানে আসবে</p>
-<p id="sizeShow" style="color:#facc15;font-weight:bold">
+<p id="sizeShow" style="color:#facc15;font-weight:bold"></p>
 </div>
 
 <!-- ২. কোড -->
@@ -81,7 +82,7 @@ let lastBlobUrl = null;
 
 function getRes(){ var v=document.getElementById('res').value.split('x'); return {W:parseInt(v[0]), H:parseInt(v[1])}; }
 
-function clearCode(){ document.getElementById('code').value=''; document.getElementById('cnt').innerText='কোড: 0 অক্ষর'; document.getElementById('frameWrap').style.display='none'; document.getElementById('stage').srcdoc=''; document.getElementById('msg').innerText='মুছে গেছে'; }
+function clearCode(){ document.getElementById('code').value=''; document.getElementById('cnt').innerText='কোড: 0 অক্ষর'; document.getElementById('stage').srcdoc=''; document.getElementById('previewPlaceholder').style.display='flex'; document.getElementById('msg').innerText='মুছে গেছে'; }
 
 function loadSample(){
   document.getElementById('code').value='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0}html,body{width:100%;height:100%;overflow:hidden;background:#030713}.sun{width:140px;height:140px;background:#fff200;border-radius:50%;position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 80px 30px #fff200;animation:sun 3s ease-in-out infinite alternate}@keyframes sun{from{top:20%}to{top:45%}}.sea{position:absolute;bottom:0;width:100%;height:35%;background:linear-gradient(#00c6ff,#0072ff)}.title{position:absolute;top:62%;width:100%;text-align:center;color:white;font-size:32px;font-weight:bold}</style></head><body><div class="sun"></div><div class="sea"></div><div class="title">Sunset Beach</div></body></html>';
@@ -95,7 +96,6 @@ function changeShape(){
   else if(r.W===r.H) w.style.height='320px';
   else w.style.height='220px';
   document.getElementById('sizeShow').innerText='📐 প্রিভিউ সাইজ: '+r.W+'x'+r.H+' - এই সাইজেই এক্সপোর্ট হবে';
-  // সাইজ বদলালে প্রিভিউ আবার লোড হবে, যাতে তুমি দেখতে পারো ওই সাইজে কেমন লাগবে
   if(document.getElementById('code').value.length>10) showPreview();
 }
 
@@ -109,9 +109,15 @@ function showPreview(){
   if(!h || h.length<10){ document.getElementById('msg').innerText='⚠️ আগে কোড পেস্ট করো'; return; }
   document.getElementById('cnt').innerText='কোড: '+h.length+' অক্ষর';
   document.getElementById('previewPlaceholder').style.display='none';
-  changeShape();
+  var r=getRes();
+  var w=document.getElementById('frameWrap');
+  if(r.H>r.W) w.style.height='380px';
+  else if(r.W===r.H) w.style.height='320px';
+  else w.style.height='220px';
+  document.getElementById('sizeShow').innerText='📐 প্রিভিউ সাইজ: '+r.W+'x'+r.H+' - এই সাইজেই এক্সপোর্ট হবে';
   var iframe=document.getElementById('stage');
-  iframe.srcdoc=makeFullHtml(h);
+  iframe.srcdoc='';
+  setTimeout(function(){ iframe.srcdoc=makeFullHtml(h); },30);
   document.getElementById('msg').innerText='';
 }
 
@@ -121,9 +127,7 @@ async function doExport(){
   var dur=parseInt(document.getElementById('dur').value)||10;
   var fps=parseInt(document.getElementById('fps').value)||30;
   var bitrate=parseInt(document.getElementById('quality').value)||8000000;
-  // তোমার পছন্দের সাইজ - ঠিক এইটাই ব্যবহার হবে
   var r=getRes(); var W=r.W, H=r.H;
-
   var btn=document.getElementById('exportBtn');
   btn.disabled=true; btn.innerText='⏳ '+W+'x'+H+' সাইজে MP4 বানানো হচ্ছে...';
   document.getElementById('dlBtn').style.display='none';
@@ -134,23 +138,18 @@ async function doExport(){
   var doc=null;
   try{ doc=iframe.contentDocument; }catch(e){}
   if(!doc || !doc.body){ document.getElementById('out').innerText='⚠️ প্রিভিউ লোড হয় নাই, আবার প্রিভিউ দেখুন চাপ দাও'; btn.disabled=false; return; }
-
   var canvas=document.getElementById('recCanvas');
   canvas.width=W; canvas.height=H;
   var ctx=canvas.getContext('2d');
-
-  // যদি ইউজারের কোডে <canvas> থাকে (Neon Wave) - সরাসরি ওইটা থেকে রেকর্ড হবে
   var userCanvas=doc.querySelector('canvas');
   var stream=null; var useDirectCanvas=false;
   if(userCanvas && userCanvas.captureStream){ try{ stream=userCanvas.captureStream(fps); useDirectCanvas=true; }catch(e){} }
   if(!useDirectCanvas){ stream=canvas.captureStream(fps); }
-
   var mime='video/mp4'; var rec;
   try{
     if(typeof MediaRecorder!=='undefined' && !MediaRecorder.isTypeSupported('video/mp4')) mime='video/webm;codecs=vp9';
     rec=new MediaRecorder(stream,{mimeType:mime, videoBitsPerSecond:bitrate});
   }catch(e){ rec=new MediaRecorder(stream); }
-
   var chunks=[];
   rec.ondataavailable=function(e){ if(e.data.size>0) chunks.push(e.data); };
   rec.onstop=function(){
@@ -164,9 +163,7 @@ async function doExport(){
     btn.disabled=false; btn.innerText='⬇ এই সাইজে MP4 এক্সপোর্ট করুন';
   };
   rec.start();
-  // জোর করে স্টপ - আর আটকাবে না
   setTimeout(function(){ if(rec.state!=='inactive'){ try{rec.stop();}catch(e){} } }, dur*1000+2000);
-
   var start=performance.now(); var frame=0; var total=dur*fps;
   async function loop(){
     var elapsed=performance.now()-start;
@@ -187,8 +184,6 @@ async function doExport(){
 
 document.getElementById('code').addEventListener('input',function(){
   document.getElementById('cnt').innerText='কোড: '+this.value.length+' অক্ষর';
-  clearTimeout(window._t);
-  window._t=setTimeout(function(){ if(document.getElementById('code').value.length>50) showPreview(); },800);
 });
 changeShape();
 </script>
