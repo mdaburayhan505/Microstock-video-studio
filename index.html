@@ -85,18 +85,25 @@ function changeShape(){
   if(r.H>r.W) w.style.height='380px';
   else if(r.W===r.H) w.style.height='320px';
   else w.style.height='220px';
-  // প্রিভিউ বক্সে ফিট - স্কেল না, শুধু বক্সের হাইট বদলানো
   var iframe=document.getElementById('stage');
   iframe.style.width='100%'; iframe.style.height='100%'; iframe.style.transform='none';
   if(document.getElementById('code').value.length>10) showPreview();
 }
 function makeFullHtml(h){
   if(h.indexOf('<html')!==-1){
-    // ইউজারের কোডের ভিতরে বক্সে আটকানোর CSS ঢুকিয়ে দেওয়া
-    if(h.indexOf('</head>')!==-1) return h.replace('</head>','<style>html,body{width:100%!important;height:100%!important;overflow:hidden!important;margin:0!important;padding:0!important} *{max-width:100%!important;box-sizing:border-box!important}</style></head>');
+    if(h.indexOf('</head>')!==-1) return h.replace('</head>','<style>html,body{width:100%!important;height:100%!important;overflow:hidden!important;margin:0!important;padding:0!important;position:relative!important} *{box-sizing:border-box!important}</style></head>');
     return h;
   }
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}</style></head><body>'+h+'</body></html>';
+}
+// এক্সপোর্টের জন্য ফিক্সড সাইজের HTML - কোনায় যাবে না
+function makeExportHtml(h,W,H){
+  var fix='<style>html,body{width:'+W+'px!important;height:'+H+'px!important;min-width:'+W+'px!important;min-height:'+H+'px!important;overflow:hidden!important;margin:0!important;padding:0!important;position:relative!important}</style><meta name="viewport" content="width='+W+'">';
+  if(h.indexOf('<html')!==-1){
+    if(h.indexOf('</head>')!==-1) return h.replace('</head>',fix+'</head>');
+    return fix+h;
+  }
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8">'+fix+'<style>html,body{margin:0;padding:0;width:'+W+'px;height:'+H+'px;overflow:hidden}</style></head><body>'+h+'</body></html>';
 }
 function showPreview(){
   var h=document.getElementById('code').value;
@@ -131,25 +138,21 @@ async function doExport(){
   document.getElementById('dlBtn').style.display='none';
   setProg(0,'⏳ প্রিভিউ লোড হচ্ছে...');
   showPreview();
-  await new Promise(function(res){setTimeout(res,1500)});
+  await new Promise(function(res){setTimeout(res,800)});
   var iframe=document.getElementById('stage');
   var doc=null;
   try{ doc=iframe.contentDocument; }catch(e){}
   if(!doc || !doc.body){ document.getElementById('out').innerText='⚠️ প্রিভিউ লোড হয় নাই, আবার প্রিভিউ দেখুন চাপ দাও'; btn.disabled=false; return; }
-  // মোশনের জন্য এক্সপোর্টের সময় iframe কে ফুল সাইজে নিয়ে যাওয়া - এইটাই মোশন ঠিক করবে
-  var wrap=document.getElementById('frameWrap');
-  var oldH=wrap.style.height;
-  iframe.style.width=W+'px'; iframe.style.height=H+'px';
-  wrap.style.width=W+'px'; wrap.style.height=H+'px';
-  wrap.style.position='fixed'; wrap.style.left='0'; wrap.style.top='0'; wrap.style.zIndex='9999';
-  await new Promise(function(res){setTimeout(res,600)});
-  // আবার প্রিভিউ লোড করে অ্যানিমেশন রিস্টার্ট
-  iframe.srcdoc=makeFullHtml(h);
-  await new Promise(function(res){setTimeout(res,600)});
+  // এক্সপোর্টের সময় ফিক্সড সাইজে লোড - মাঝখানে থাকবে
+  iframe.srcdoc=makeExportHtml(h,W,H);
+  await new Promise(function(res){setTimeout(res,1000)});
   try{ doc=iframe.contentDocument; }catch(e){}
+  // iframe কে ফুল সাইজে রাখা, কিন্তু স্ক্রিনের বাইরে না - ভিতরে স্ক্রল না হয়
+  iframe.style.width='100%'; iframe.style.height='100%';
   var canvas=document.getElementById('recCanvas');
   canvas.width=W; canvas.height=H;
   var ctx=canvas.getContext('2d');
+  ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
   var userCanvas=doc.querySelector('canvas');
   var stream=null; var useDirectCanvas=false;
   if(userCanvas && userCanvas.captureStream){ try{ stream=userCanvas.captureStream(fps); useDirectCanvas=true; }catch(e){} }
@@ -162,9 +165,6 @@ async function doExport(){
   var chunks=[];
   rec.ondataavailable=function(e){ if(e.data.size>0) chunks.push(e.data); };
   rec.onstop=function(){
-    // এক্সপোর্ট শেষে আবার বক্সে ফিরিয়ে আনা
-    wrap.style.position='relative'; wrap.style.left=''; wrap.style.top=''; wrap.style.zIndex=''; wrap.style.width='100%'; wrap.style.height=oldH||'220px';
-    iframe.style.width='100%'; iframe.style.height='100%';
     var blob=new Blob(chunks,{type:'video/mp4'});
     if(lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
     lastBlobUrl=URL.createObjectURL(blob);
@@ -173,6 +173,8 @@ async function doExport(){
     a.href=lastBlobUrl;
     a.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4';
     document.body.appendChild(a); a.click(); a.remove();
+    // আবার নরমাল প্রিভিউতে ফিরে যাওয়া
+    showPreview();
     setTimeout(function(){
       document.getElementById('out').innerText='✅ ডাউনলোড হয়ে গেছে! সাইজ: '+W+'x'+H+' | সময়: '+dur+' সেকেন্ড | ফাইল: '+(blob.size/1024/1024).toFixed(2)+' MB';
       btn.disabled=false; btn.innerText='⬇ এই সাইজে MP4 এক্সপোর্ট করুন';
@@ -185,6 +187,7 @@ async function doExport(){
   var start = performance.now();
   rec.start(250);
   setTimeout(function(){ if(rec.state!=='inactive'){ try{rec.stop();}catch(e){} } }, totalMs+300);
+  var frameGap = 1000/fps;
   async function loop(){
     var elapsed=performance.now()-start;
     if(elapsed>=totalMs){ if(rec.state!=='inactive') rec.stop(); return; }
@@ -192,14 +195,18 @@ async function doExport(){
     setProg(pct,'🎬 রেকর্ড হচ্ছে '+pct+'% ... '+Math.ceil((totalMs-elapsed)/1000)+'s বাকি - স্ক্রল করবা না');
     if(!useDirectCanvas){
       try{
-        // এখন iframe ফুল সাইজে আছে, তাই scale=1 - দ্রুত হবে, মোশন আটকাবে না
-        var shot=await html2canvas(doc.body,{backgroundColor:'#000000',scale:1,useCORS:true,logging:false});
+        // অ্যানিমেশনকে ১ ফ্রেম আগাইতে দেওয়া - মোশন চলবে
+        if(doc.defaultView) await new Promise(function(res){ doc.defaultView.requestAnimationFrame(function(){res()}); });
+        await new Promise(function(res){setTimeout(res,10)});
+        var shot=await html2canvas(doc.body,{backgroundColor:'#000000',scale:1,windowWidth:W,windowHeight:H,width:W,height:H,x:0,y:0,useCORS:true,logging:false});
+        // ঠিক মাঝখানে, ফুল ফ্রেমে আঁকা - কোনায় যাবে না
+        ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
         ctx.drawImage(shot,0,0,W,H);
       }catch(e){}
     }
-    // ফ্রেমের মাঝে অ্যানিমেশন চলার জন্য একটু গ্যাপ
-    await new Promise(function(res){setTimeout(res, 1000/fps)});
-    loop();
+    var spent=performance.now()-start-elapsed;
+    var wait=Math.max(5, frameGap-spent);
+    setTimeout(loop, wait);
   }
   loop();
 }
