@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Video Studio - Preview & Export</title>
+<title>Microstock Video Studio - Preview & Export</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{box-sizing:border-box}
@@ -12,7 +12,7 @@ body{margin:0;background:#0b1023;color:#fff;font-family:sans-serif;padding:10px}
 .top b{font-size:20px;color:#8ab4ff}
 .free{background:#1e3a8a;padding:4px 10px;border-radius:8px;font-size:12px}
 .box{background:#131a33;border:1px solid #26315c;border-radius:18px;padding:12px;margin:10px 0}
-#frameWrap{background:#000;border-radius:14px;overflow:hidden;width:100%;height:220px;display:none}
+#frameWrap{background:#fff;border-radius:14px;overflow:hidden;width:100%;height:220px;display:block;position:relative}
 #stage{width:100%;height:100%;border:0;background:#000;display:block}
 textarea{width:100%;height:130px;background:#0a0f22;color:#cbd5e1;padding:12px;border:1px solid #26315c;border-radius:14px;font-size:13px;outline:none}
 .btn{padding:11px 14px;background:#1e293b;color:#fff;border:1px solid #334155;border-radius:12px;font-weight:bold}
@@ -31,9 +31,11 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 
 <!-- ১. প্রিভিউ সবার উপরে -->
 <div class="box">
-<div id="frameWrap"><iframe id="stage" sandbox="allow-scripts allow-same-origin"></iframe></div>
+<div id="frameWrap">
+<div id="previewPlaceholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:15px;background:#fff">প্রিভিউ এখানে আসবে</div>
+<iframe id="stage" sandbox="allow-scripts allow-same-origin" style="position:relative;z-index:2"></iframe></div>
 <p id="msg" style="color:#a7f3d0">কোড পেস্ট করো, প্রিভিউ এখানে আসবে</p>
-<p id="sizeShow" style="color:#facc15;font-weight:bold">📐 প্রিভিউ সাইজ: 1280x720</p>
+<p id="sizeShow" style="color:#facc15;font-weight:bold">
 </div>
 
 <!-- ২. কোড -->
@@ -106,8 +108,7 @@ function showPreview(){
   var h=document.getElementById('code').value;
   if(!h || h.length<10){ document.getElementById('msg').innerText='⚠️ আগে কোড পেস্ট করো'; return; }
   document.getElementById('cnt').innerText='কোড: '+h.length+' অক্ষর';
-  var wrap=document.getElementById('frameWrap');
-  wrap.style.display='block';
+  document.getElementById('previewPlaceholder').style.display='none';
   changeShape();
   var iframe=document.getElementById('stage');
   iframe.srcdoc=makeFullHtml(h);
