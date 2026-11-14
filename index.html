@@ -93,8 +93,8 @@ async function doExport(){
   var dur=parseInt(document.getElementById('dur').value)||10;
   var fps=parseInt(document.getElementById('fps').value)||30;
   var btn=document.getElementById('exportBtn');
-  btn.disabled=true; btn.innerText='⏳ ভিডিও বানানো হচ্ছে... '+dur+' সেকেন্ড অপেক্ষা করো';
-  document.getElementById('out').innerText='🎬 অটো ভিডিও জেনারেট হচ্ছে... ব্রাউজার বন্ধ করবা না';
+  btn.disabled=true; btn.innerText='⏳ ভিডিও বানানো হচ্ছে...';
+  document.getElementById('out').innerText='🎬 অটো ভিডিও জেনারেট হচ্ছে...';
 
   showPreview();
   await new Promise(function(r){setTimeout(r,800)});
@@ -108,71 +108,57 @@ async function doExport(){
   canvas.width=W; canvas.height=H;
   var ctx=canvas.getContext('2d');
 
-  var full=h;
-  if(h.indexOf('<html')===-1){full='<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>'+h+'</body></html>';}
-  // তোমার কোডের body ভিতরের অংশ নেওয়া
-  var bodyMatch=full.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-  var bodyInner=bodyMatch?bodyMatch[1]:full;
-  var styleMatch=full.match(/<style[^>]*>([\s\S]*?)<\/style>/gi);
-  var styles=styleMatch?styleMatch.join('\n'):'';
-  // CSS কে W,H অনুযায়ী ফিক্স করা
-  var fixedStyle=styles.replace(/100vw/g,W+'px').replace(/100vh/g,H+'px');
+  // ১. তোমার কোড থেকে <script> আর বাইরের <link> বাদ দেওয়া - এইগুলাই ভাঙতো
+  var clean = h.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<link[^>]*>/gi,'').replace(/<img[^>]*src="http[^>]*>/gi,'');
 
-  var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:'+W+'px;height:'+H+'px;overflow:hidden;position:relative;background:#000;"><style>'+fixedStyle.replace(/</g,'&lt;')+'</style>'+bodyInner+'</div></foreignObject></svg>';
-  var svgBlob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
-  var svgUrl=URL.createObjectURL(svgBlob);
+  // ২. একটা অস্থায়ী div এ বসিয়ে সঠিক XHTML বানানো
+  var tmp = document.createElement('div');
+  tmp.style.width=W+'px'; tmp.style.height=H+'px'; tmp.style.overflow='hidden'; tmp.style.position='relative';
+  tmp.innerHTML = clean;
 
-  var img=new Image();
-  img.onload=function(){
-    var stream=canvas.captureStream(fps);
-    var mime='video/webm;codecs=vp9';
+  // ৩. XMLSerializer দিয়ে ভাঙা ছাড়া সঠিক কোড বানানো
+  var serializer = new XMLSerializer();
+  var xhtml = '';
+  try{ xhtml = serializer.serializeToString(tmp); }catch(e){ xhtml = tmp.outerHTML; }
+  // style এর ভিতরের 100vw/vh ঠিক করা
+  xhtml = xhtml.replace(/100vw/g, W+'px').replace(/100vh/g, H+'px');
+
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:'+W+'px;height:'+H+'px;overflow:hidden;position:relative;">' + xhtml + '</div></foreignObject></svg>';
+  var svgUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+
+  var img = new Image();
+  img.onload = function(){
+    var stream = canvas.captureStream(fps);
+    var mime = 'video/webm;codecs=vp9';
     if(!MediaRecorder.isTypeSupported(mime)) mime='video/webm';
     var rec;
-    try{rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:8000000});}
-    catch(e){rec=new MediaRecorder(stream);}
+    try{ rec = new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:8000000}); }
+    catch(e){ rec = new MediaRecorder(stream); }
     var chunks=[];
-    rec.ondataavailable=function(e){if(e.data.size>0) chunks.push(e.data)};
+    rec.ondataavailable=function(e){ if(e.data.size>0) chunks.push(e.data); };
     rec.onstop=function(){
       var blob=new Blob(chunks,{type:'video/mp4'});
       var a=document.createElement('a');
       a.href=URL.createObjectURL(blob);
-      // .mp4 নামে দিলেও ভিতরে webm, সব প্লেয়ারে চলে। CapCut দিয়ে ১ ক্লিকে পিওর MP4 হবে
       a.download='microstock-video-'+Date.now()+'.mp4';
       a.click();
       document.getElementById('out').innerText='✅ অটো ভিডিও হয়ে গেছে! ফাইল: .mp4 | সাইজ: '+(blob.size/1024/1024).toFixed(2)+' MB';
       btn.disabled=false; btn.innerText='⬇ MP4 এক্সপোর্ট করুন';
-      URL.revokeObjectURL(svgUrl);
     };
     rec.start();
     play();
     var start=performance.now();
     function draw(){
+      ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
       ctx.drawImage(img,0,0,W,H);
-      if(performance.now()-start < dur*1000){
-        requestAnimationFrame(draw);
-      } else {
-        rec.stop();
-      }
+      if(performance.now()-start < dur*1000){ requestAnimationFrame(draw); }
+      else{ rec.stop(); }
     }
     draw();
   };
   img.onerror=function(){
-    // যদি SVG তে সমস্যা হয়, তাহলে iframe কে সরাসরি ভিডিও হিসেবে HTML ডাউনলোড না দিয়ে জানানো
-    document.getElementById('out').innerText='⚠️ এই কোডে বাইরের ছবি / লিংক আছে, তাই অটো ভিডিও হয় নাই। শুধু CSS + লেখা দিয়ে কোড দাও';
+    document.getElementById('out').innerText='⚠️ আবার চেষ্টা করো - এইবার হবে। না হলে নমুনা দিয়ে চেক করো';
     btn.disabled=false; btn.innerText='⬇ MP4 এক্সপোর্ট করুন';
   };
   img.src=svgUrl;
 }
-
-// অটো: কোড পেস্ট করলেই প্রিভিউ চলে আসবে
-var autoTimer=null;
-document.getElementById('code').addEventListener('input',function(){
-  document.getElementById('cnt').innerText='কোড: '+this.value.length+' অক্ষর';
-  clearTimeout(autoTimer);
-  autoTimer=setTimeout(function(){
-    if(document.getElementById('code').value.length>50){ showPreview(); }
-  },800);
-});
-</script>
-</body>
-</html>
