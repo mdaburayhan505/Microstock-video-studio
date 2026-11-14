@@ -12,8 +12,8 @@ body{margin:0;background:#0b1023;color:#fff;font-family:sans-serif;padding:10px}
 .top b{font-size:20px;color:#8ab4ff}
 .free{background:#1e3a8a;padding:4px 10px;border-radius:8px;font-size:12px}
 .box{background:#131a33;border:1px solid #26315c;border-radius:18px;padding:12px;margin:10px 0}
-#frameWrap{background:#fff;border-radius:14px;overflow:hidden;width:100%;height:220px;display:block;position:relative}
-#stage{width:100%;height:100%;border:0;background:#000;display:block;transform-origin:0 0}
+#frameWrap{background:#000;border-radius:14px;overflow:hidden;width:100%;height:220px;display:block;position:relative}
+#stage{width:100%;height:100%;border:0;background:#000;display:block}
 #previewPlaceholder{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:14px;background:#fff;z-index:1}
 textarea{width:100%;height:130px;background:#0a0f22;color:#cbd5e1;padding:12px;border:1px solid #26315c;border-radius:14px;font-size:13px;outline:none}
 .btn{padding:11px 14px;background:#1e293b;color:#fff;border:1px solid #334155;border-radius:12px;font-weight:bold}
@@ -79,30 +79,23 @@ function loadSample(){
   document.getElementById('code').value='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0}html,body{width:100%;height:100%;overflow:hidden;background:#030713}.sun{width:140px;height:140px;background:#fff200;border-radius:50%;position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 80px 30px #fff200;animation:sun 3s ease-in-out infinite alternate}@keyframes sun{from{top:20%}to{top:45%}}.sea{position:absolute;bottom:0;width:100%;height:35%;background:linear-gradient(#00c6ff,#0072ff)}.title{position:absolute;top:62%;width:100%;text-align:center;color:white;font-size:32px;font-weight:bold}</style></head><body><div class="sun"></div><div class="sea"></div><div class="title">Sunset Beach</div></body></html>';
   showPreview();
 }
-// প্রিভিউ বক্সে ফিট করানো - রেট কমিয়ে বক্সের ভিতরে রাখা
-function fitPreview(){
-  var r=getRes();
-  var wrap=document.getElementById('frameWrap');
-  var iframe=document.getElementById('stage');
-  var boxW=wrap.clientWidth;
-  var boxH=220;
-  if(r.H>r.W) boxH=380;
-  else if(r.W===r.H) boxH=320;
-  else boxH=220;
-  wrap.style.height=boxH+'px';
-  // আসল সাইজে রেখে ছোট করে দেখানো - বাইরে যাবে না
-  var scale=Math.min(boxW/r.W, boxH/r.H);
-  iframe.style.width=r.W+'px';
-  iframe.style.height=r.H+'px';
-  iframe.style.transform='scale('+scale+')';
-  iframe.style.transformOrigin='0 0';
-}
 function changeShape(){
-  fitPreview();
+  var r=getRes();
+  var w=document.getElementById('frameWrap');
+  if(r.H>r.W) w.style.height='380px';
+  else if(r.W===r.H) w.style.height='320px';
+  else w.style.height='220px';
+  // প্রিভিউ বক্সে ফিট - স্কেল না, শুধু বক্সের হাইট বদলানো
+  var iframe=document.getElementById('stage');
+  iframe.style.width='100%'; iframe.style.height='100%'; iframe.style.transform='none';
   if(document.getElementById('code').value.length>10) showPreview();
 }
 function makeFullHtml(h){
-  if(h.indexOf('<html')!==-1) return h;
+  if(h.indexOf('<html')!==-1){
+    // ইউজারের কোডের ভিতরে বক্সে আটকানোর CSS ঢুকিয়ে দেওয়া
+    if(h.indexOf('</head>')!==-1) return h.replace('</head>','<style>html,body{width:100%!important;height:100%!important;overflow:hidden!important;margin:0!important;padding:0!important} *{max-width:100%!important;box-sizing:border-box!important}</style></head>');
+    return h;
+  }
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}</style></head><body>'+h+'</body></html>';
 }
 function showPreview(){
@@ -110,7 +103,7 @@ function showPreview(){
   if(!h || h.length<10){ document.getElementById('msg').innerText='⚠️ আগে কোড পেস্ট করো'; return; }
   document.getElementById('cnt').innerText='কোড: '+h.length+' অক্ষর';
   document.getElementById('previewPlaceholder').style.display='none';
-  fitPreview();
+  changeShape();
   var iframe=document.getElementById('stage');
   iframe.srcdoc='';
   setTimeout(function(){ iframe.srcdoc=makeFullHtml(h); },30);
@@ -143,6 +136,17 @@ async function doExport(){
   var doc=null;
   try{ doc=iframe.contentDocument; }catch(e){}
   if(!doc || !doc.body){ document.getElementById('out').innerText='⚠️ প্রিভিউ লোড হয় নাই, আবার প্রিভিউ দেখুন চাপ দাও'; btn.disabled=false; return; }
+  // মোশনের জন্য এক্সপোর্টের সময় iframe কে ফুল সাইজে নিয়ে যাওয়া - এইটাই মোশন ঠিক করবে
+  var wrap=document.getElementById('frameWrap');
+  var oldH=wrap.style.height;
+  iframe.style.width=W+'px'; iframe.style.height=H+'px';
+  wrap.style.width=W+'px'; wrap.style.height=H+'px';
+  wrap.style.position='fixed'; wrap.style.left='0'; wrap.style.top='0'; wrap.style.zIndex='9999';
+  await new Promise(function(res){setTimeout(res,600)});
+  // আবার প্রিভিউ লোড করে অ্যানিমেশন রিস্টার্ট
+  iframe.srcdoc=makeFullHtml(h);
+  await new Promise(function(res){setTimeout(res,600)});
+  try{ doc=iframe.contentDocument; }catch(e){}
   var canvas=document.getElementById('recCanvas');
   canvas.width=W; canvas.height=H;
   var ctx=canvas.getContext('2d');
@@ -158,6 +162,9 @@ async function doExport(){
   var chunks=[];
   rec.ondataavailable=function(e){ if(e.data.size>0) chunks.push(e.data); };
   rec.onstop=function(){
+    // এক্সপোর্ট শেষে আবার বক্সে ফিরিয়ে আনা
+    wrap.style.position='relative'; wrap.style.left=''; wrap.style.top=''; wrap.style.zIndex=''; wrap.style.width='100%'; wrap.style.height=oldH||'220px';
+    iframe.style.width='100%'; iframe.style.height='100%';
     var blob=new Blob(chunks,{type:'video/mp4'});
     if(lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
     lastBlobUrl=URL.createObjectURL(blob);
@@ -185,13 +192,14 @@ async function doExport(){
     setProg(pct,'🎬 রেকর্ড হচ্ছে '+pct+'% ... '+Math.ceil((totalMs-elapsed)/1000)+'s বাকি - স্ক্রল করবা না');
     if(!useDirectCanvas){
       try{
-        var scale=W / Math.max(1, doc.body.clientWidth);
-        if(scale>1) scale=1;
-        var shot=await html2canvas(doc.body,{backgroundColor:'#000000',scale:scale,useCORS:true,logging:false});
+        // এখন iframe ফুল সাইজে আছে, তাই scale=1 - দ্রুত হবে, মোশন আটকাবে না
+        var shot=await html2canvas(doc.body,{backgroundColor:'#000000',scale:1,useCORS:true,logging:false});
         ctx.drawImage(shot,0,0,W,H);
       }catch(e){}
     }
-    setTimeout(loop, 1000/fps);
+    // ফ্রেমের মাঝে অ্যানিমেশন চলার জন্য একটু গ্যাপ
+    await new Promise(function(res){setTimeout(res, 1000/fps)});
+    loop();
   }
   loop();
 }
@@ -199,7 +207,6 @@ document.getElementById('code').addEventListener('input',function(){
   document.getElementById('cnt').innerText='কোড: '+this.value.length+' অক্ষর';
 });
 changeShape();
-window.addEventListener('resize',fitPreview);
 </script>
 </body>
 </html>
