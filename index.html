@@ -29,7 +29,6 @@ label{font-weight:bold;display:block;margin-bottom:4px}
 
 <!-- ২. HTML CODE বক্স -->
 <div class="box">
-<h3>১. HTML CODE পেস্ট করো</h3>
 <p class="small">এখানে তোমার ভিডিওর HTML CODE পেস্ট করো</p>
 <textarea id="code" placeholder="এখানে HTML CODE পেস্ট করো..."></textarea>
 <p id="cnt" style="font-size:13px">কোড: 0 অক্ষর</p>
@@ -56,7 +55,6 @@ label{font-weight:bold;display:block;margin-bottom:4px}
 <div class="grid">
 <div class="box">
 <h3>সাইজ / রেজোলিউশন</h3>
-<label>সাইজ বাছো</label>
 <select id="res" onchange="changeShape()">
 <option value="16/9|100%">ল্যান্ডস্কেপ 720p ✅ ফ্রি</option>
 <option value="16/9|100%">ল্যান্ডস্কেপ 1080p ✅ ফ্রি</option>
@@ -71,7 +69,6 @@ label{font-weight:bold;display:block;margin-bottom:4px}
 
 <div class="box">
 <h3>ফ্রেমরেট</h3>
-<label>ফ্রেমরেট বাছো</label>
 <select id="fps">
 <option>30</option>
 <option>25</option>
@@ -101,7 +98,7 @@ label{font-weight:bold;display:block;margin-bottom:4px}
 <!-- ৫. ফাইল সাইজ + এক্সপোর্ট -->
 <div class="box">
 <h3>📦 ফাইল সাইজ</h3>
-<select id="sz"><option value="0">আসল সাইজ</option><option value="5" selected>5 MB ✅ ফ্রি - Adobe / Shutterstock</option><option value="10">10 MB ✅ ফ্রি</option><option value="25">25 MB ✅ ফ্রি</option><option value="50">50 MB ✅ ফ্রি</option></select>
+<select id="sz"><option value="0">আসল সাইজ</option><auto></auto>
 <br><br>
 <button class="btn-main" onclick="doExport()">⬇ MP4 এক্সপোর্ট করুন</button>
 <p id="out" style="color:green;font-weight:bold"></p>
@@ -151,11 +148,6 @@ function showPreview(){
     f.srcdoc = h;
     document.getElementById('msg').innerText = '✅ প্রিভিউ চলছে';
   }
-function play(){
-  var dur=parseInt(document.getElementById('dur').value)||10;
-  var sec=0;
-  var t=setInterval(function(){sec+=0.5;if(sec>=dur){clearInterval(t);sec=dur}document.getElementById('fill').style.width=(sec/dur*100)+'%';document.getElementById('time').innerText=sec.toFixed(1)+'s / '+dur+'s';},500);
-}
 function doExport(){
   var h=document.getElementById('code').value;
   if(!h){document.getElementById('out').innerText='⚠️ আগে কোড পেস্ট করো';return;}
