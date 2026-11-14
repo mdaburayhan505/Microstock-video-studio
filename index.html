@@ -24,6 +24,8 @@ select,input{width:100%;padding:12px;background:#0a0f22;color:#fff;border:1px so
 label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 .small{font-size:12px;color:#94a3b8}
 #out{color:#4ade80;font-weight:bold}
+#progWrap{width:100%;height:18px;background:#0a0f22;border:1px solid #334155;border-radius:20px;overflow:hidden;margin-top:10px;display:none}
+#progBar{height:100%;width:0%;background:linear-gradient(90deg,#00e676,#3b82f6);text-align:center;font-size:11px;line-height:18px;color:#000;font-weight:bold}
 </style>
 </head>
 <body>
@@ -67,6 +69,7 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 </div>
 <p class="small">প্রিভিউ পছন্দ হলে নিচের বাটনে চাপ দাও। যে সাইজ সিলেক্ট করবা, ঠিক ওই সাইজেই ভিডিও হবে।</p>
 <button class="btn-main" id="exportBtn" onclick="doExport()">⬇ এই সাইজে MP4 এক্সপোর্ট করুন</button>
+<div id="progWrap"><div id="progBar">0%</div></div>
 <p id="out"></p>
 <button id="dlBtn" class="btn-dl">⬇ এখানে চাপ দিয়ে MP4 ডাউনলোড করো</button>
 </div>
@@ -108,6 +111,16 @@ function showPreview(){
   setTimeout(function(){ iframe.srcdoc=makeFullHtml(h); },30);
   document.getElementById('msg').innerText='';
 }
+function setProg(p,txt){
+  var wrap=document.getElementById('progWrap');
+  var bar=document.getElementById('progBar');
+  wrap.style.display='block';
+  bar.style.width=p+'%';
+  bar.innerText=p+'%';
+  document.getElementById('out').innerText=txt;
+  var btn=document.getElementById('exportBtn');
+  btn.innerText='⏳ '+p+'% - '+txt;
+}
 async function doExport(){
   var h=document.getElementById('code').value;
   if(!h){ document.getElementById('out').innerText='⚠️ আগে কোড পেস্ট করো'; return; }
@@ -116,9 +129,9 @@ async function doExport(){
   var bitrate=parseInt(document.getElementById('quality').value)||8000000;
   var r=getRes(); var W=r.W, H=r.H;
   var btn=document.getElementById('exportBtn');
-  btn.disabled=true; btn.innerText='⏳ '+W+'x'+H+' সাইজে MP4 বানানো হচ্ছে...';
+  btn.disabled=true;
   document.getElementById('dlBtn').style.display='none';
-  document.getElementById('out').innerText='🎬 রেকর্ড হচ্ছে '+W+'x'+H+' ... স্ক্রল করবা না';
+  setProg(0,'🎬 রেকর্ড হচ্ছে 0% ... স্ক্রল করবা না');
   showPreview();
   await new Promise(function(res){setTimeout(res,1200)});
   var iframe=document.getElementById('stage');
@@ -143,27 +156,37 @@ async function doExport(){
     var blob=new Blob(chunks,{type:'video/mp4'});
     if(lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
     lastBlobUrl=URL.createObjectURL(blob);
-    document.getElementById('out').innerText='✅ MP4 রেডি! সাইজ: '+W+'x'+H+' | ফাইল: '+(blob.size/1024/1024).toFixed(2)+' MB | নিচের সবুজ বাটনে চাপ দাও';
-    var dl=document.getElementById('dlBtn');
-    dl.style.display='block';
-    dl.onclick=function(){ var a=document.createElement('a'); a.href=lastBlobUrl; a.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4'; a.click(); };
-    btn.disabled=false; btn.innerText='⬇ এই সাইজে MP4 এক্সপোর্ট করুন';
+    setProg(100,'✅ MP4 রেডি! ডাউনলোড হচ্ছে 100% ...');
+    // এই ট্যাব থেকেই সরাসরি ডাউনলোড
+    var a=document.createElement('a');
+    a.href=lastBlobUrl;
+    a.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){
+      document.getElementById('out').innerText='✅ ডাউনলোড হয়ে গেছে! সাইজ: '+W+'x'+H+' | ফাইল: '+(blob.size/1024/1024).toFixed(2)+' MB';
+      btn.disabled=false; btn.innerText='⬇ এই সাইজে MP4 এক্সপোর্ট করুন';
+      // আবার দরকার হলে এই বাটনেও ডাউনলোড হবে
+      var dl=document.getElementById('dlBtn');
+      dl.style.display='block';
+      dl.onclick=function(){ var a2=document.createElement('a'); a2.href=lastBlobUrl; a2.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4'; a2.click(); };
+    },800);
   };
   rec.start();
   setTimeout(function(){ if(rec.state!=='inactive'){ try{rec.stop();}catch(e){} } }, dur*1000+2000);
-  var start=performance.now(); var frame=0; var total=dur*fps;
+  var start=performance.now();
   async function loop(){
     var elapsed=performance.now()-start;
+    var pct=Math.min(99, Math.floor((elapsed/(dur*1000))*100));
     if(elapsed>=dur*1000){ if(rec.state!=='inactive') rec.stop(); return; }
+    setProg(pct,'🎬 রেকর্ড হচ্ছে '+pct+'% ... স্ক্রল করবা না');
     if(!useDirectCanvas){
       try{
         var scale=W / Math.max(1, doc.body.clientWidth);
         if(scale>1) scale=1;
         var shot=await html2canvas(doc.body,{backgroundColor:'#000000',scale:scale,useCORS:true,logging:false});
         ctx.drawImage(shot,0,0,W,H);
-        frame++;
-      }catch(e){ frame++; }
-    } else { frame++; }
+      }catch(e){}
+    }
     setTimeout(loop, 1000/fps);
   }
   loop();
