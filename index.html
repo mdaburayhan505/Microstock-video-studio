@@ -42,7 +42,7 @@ p{color:#fff}
 <button class="btn" onclick="showPreview()">👁️ প্রিভিউ দেখুন</button>
 </div>
 </div>
-<div class="box">
+<div class="box" id="previewBox">
 <h3>২. ভিডিওর প্রিভিউ</h3>
 <p class="small">প্রিভিউ দেখে নাও, ঠিক থাকলে নিচে এক্সপোর্ট করো</p>
 <div id="frameWrap"><iframe id="frame"></iframe></div>
@@ -90,7 +90,7 @@ p{color:#fff}
 <br><br>
 <button class="btn-main" onclick="doExport()">⬇ MP4 এক্সপোর্ট করুন</button>
 <p id="out" style="font-weight:bold"></p>
-<p class="small">✅ সব ফ্রি - কোনো Pro লক নাই। এক্সপোর্ট শেষ হলেই অটো ডাউনলোড হবে</p>
+<p class="small">✅ সব ফ্রি - কোনো Pro লক নাই। এক্সপোর্ট শেষ হলেই অটো ডাউনলোড হবে<br>⚠️ মোবাইলে Share পপ-আপ আসবে, ওইখানে এই ট্যাবটা সিলেক্ট করে Share দিতে হবে</p>
 </div>
 <script>
 function clearCode(){document.getElementById('code').value='';document.getElementById('cnt').innerText='কোড: 0 অক্ষর - মুছে গেছে ✅';document.getElementById('frameWrap').style.display='none';document.getElementById('frame').src='about:blank';document.getElementById('msg').innerText='🗑️ কোড মুছে গেছে - এখন নতুন কোড পেস্ট করো';}
@@ -101,9 +101,7 @@ function showPreview(){
   if(!h){document.getElementById('msg').innerText='⚠️ আগে কোড পেস্ট করো';return;}
   document.getElementById('msg').innerText='⏳ প্রিভিউ লোড হচ্ছে...';
   var wrap=document.getElementById('frameWrap');
-  wrap.style.display='block';
-  wrap.style.background='#fff';
-  wrap.style.height='260px';
+  wrap.style.display='block';wrap.style.background='#fff';wrap.style.height='260px';
   var f=document.getElementById('frame');
   f.style.display='block';f.style.width='100%';f.style.height='100%';f.style.background='#fff';
   var fullCode=h;
@@ -112,7 +110,49 @@ function showPreview(){
   catch(e){f.srcdoc=fullCode;document.getElementById('msg').innerText='✅ প্রিভিউ চলছে';}
 }
 function play(){var dur=parseInt(document.getElementById('dur').value)||10;var sec=0;var t=setInterval(function(){sec+=0.5;if(sec>=dur){clearInterval(t);sec=dur}document.getElementById('fill').style.width=(sec/dur*100)+'%';document.getElementById('time').innerText=sec.toFixed(1)+'s / '+dur+'s';},500);}
-function doExport(){var h=document.getElementById('code').value;if(!h){document.getElementById('out').innerText='⚠️ আগে কোড পেস্ট করো';return;}var mb=parseFloat(document.getElementById('sz').value);var finalCode=h;if(mb>0){var target=mb*1024*1024;var cur=new Blob([h]).size;if(target>cur){var need=target-cur-100;var pad='A'.repeat(need);finalCode=h+'\n<!-- '+pad+' -->';}}var b=new Blob([finalCode],{type:'text/html'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='microstock-video-'+(mb||'org')+'MB.html';a.click();document.getElementById('out').innerText='✅ ডাউনলোড হয়ে গেছে! সাইজ: '+(new Blob([finalCode]).size/1024/1024).toFixed(2)+' MB';}
+
+// === নতুন আসল ভিডিও এক্সপোর্ট - আগের HTML ডাউনলোড বাদ ===
+async function doExport(){
+  var h=document.getElementById('code').value;
+  if(!h){document.getElementById('out').innerText='⚠️ আগে কোড পেস্ট করো';return;}
+  var dur=parseInt(document.getElementById('dur').value)||10;
+  // ১. আগে প্রিভিউ চালু করো যাতে রেকর্ডে ভিডিও আসে
+  showPreview();
+  document.getElementById('out').innerText='⏳ প্রিভিউ রেডি হচ্ছে... ১ সেকেন্ড পর Share পপ-আপ আসবে';
+  await new Promise(function(r){setTimeout(r,1000)});
+  document.getElementById('previewBox').scrollIntoView({behavior:'smooth',block:'center'});
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia){
+    document.getElementById('out').innerText='⚠️ এই ব্রাউজারে স্ক্রিন রেকর্ড চলে না। Chrome দিয়ে খোলো';
+    return;
+  }
+
+  try{
+    var stream = await navigator.mediaDevices.getDisplayMedia({video:{frameRate:30},audio:false});
+    var mime='video/webm;codecs=vp9';
+    if(!MediaRecorder.isTypeSupported(mime)) mime='video/webm';
+    if(MediaRecorder.isTypeSupported('video/mp4')) mime='video/mp4';
+    var rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:8000000});
+    var chunks=[];
+    rec.ondataavailable=function(e){if(e.data.size>0) chunks.push(e.data)};
+    rec.onstop=function(){
+      stream.getTracks().forEach(function(t){t.stop()});
+      var blob=new Blob(chunks,{type:mime});
+      var ext=mime.indexOf('mp4')!==-1?'mp4':'webm';
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='microstock-video-'+Date.now()+'.'+ext;
+      a.click();
+      document.getElementById('out').innerText='✅ আসল ভিডিও হয়ে গেছে! ফাইল: .'+ext+' | সাইজ: '+(blob.size/1024/1024).toFixed(2)+' MB';
+    };
+    rec.start();
+    document.getElementById('out').innerText='🔴 রেকর্ডিং চলছে... '+dur+' সেকেন্ড - স্ক্রল করবা না';
+    play();
+    setTimeout(function(){try{rec.stop()}catch(e){}}, dur*1000);
+  }catch(e){
+    document.getElementById('out').innerText='⚠️ তুমি Share চাপো নাই। আবার MP4 চাপো আর Share দাও';
+  }
+}
 document.getElementById('code').addEventListener('input',function(){document.getElementById('cnt').innerText='কোড: '+this.value.length+' অক্ষর'});
 </script>
 </body>
