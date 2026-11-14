@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Microstock Video Studio - Stable</title>
+<title>Microstock Video Studio - Full Screen Video</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *{box-sizing:border-box}
@@ -29,7 +29,7 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 </style>
 </head>
 <body>
-<div class="top"><b>Video Studio</b><span class="free">FREE</span></div>
+<div class="top"><b>Video Studio</b><span class="free">FREE - FULL SCREEN</span></div>
 <div class="box">
 <div id="frameWrap">
 <div id="previewPlaceholder">প্রিভিউ এখানে আসবে</div>
@@ -64,7 +64,7 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 <div><label>সময় (সেকেন্ড)</label><input id="dur" value="10" type="number" min="1" max="30"></div>
 <div><label>কোয়ালিটি</label><select id="quality"><option value="8000000" selected>হাই</option><option value="5000000">মাঝারি</option><option value="2500000">লো (ফোনের জন্য ভালো)</option></select></div>
 </div>
-<p class="small">প্রিভিউ পছন্দ হলে নিচের বাটনে চাপ দাও। যে সাইজ সিলেক্ট করবা, ঠিক ওই সাইজেই ভিডিও হবে।</p>
+<p class="small">প্রিভিউ পছন্দ হলে নিচের বাটনে চাপ দাও। ভিডিও এখন পুরা স্ক্রিন ভরে আসবে, ছোট দেখাবে না।</p>
 <button class="btn-main" id="exportBtn" onclick="doExport()">⬇ এই সাইজে MP4 এক্সপোর্ট করুন</button>
 <div id="progWrap"><div id="progBar">0%</div></div>
 <p id="out"></p>
@@ -93,7 +93,7 @@ function makeFullHtml(h){
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}</style></head><body>'+h+'</body></html>';
 }
 function makeExportHtml(h,W,H){
-  var fix='<style>html,body{width:'+W+'px!important;height:'+H+'px!important;overflow:hidden!important;margin:0!important;padding:0!important;position:relative!important}</style>';
+  var fix='<style>html,body{width:'+W+'px!important;height:'+H+'px!important;overflow:hidden!important;margin:0!important;padding:0!important;position:relative!important}body{transform-origin:top left!important}</style>';
   if(h.indexOf('<html')!==-1){
     if(h.indexOf('</head>')!==-1) return h.replace('</head>',fix+'</head>');
     return fix+h;
@@ -107,6 +107,7 @@ function showPreview(){
   document.getElementById('previewPlaceholder').style.display='none';
   changeShape();
   var iframe=document.getElementById('stage');
+  iframe.style.position='relative'; iframe.style.left=''; iframe.style.top=''; iframe.style.zIndex=''; iframe.style.width='100%'; iframe.style.height='100%';
   iframe.srcdoc=makeFullHtml(h);
   document.getElementById('msg').innerText='✅ প্রিভিউ লোড হয়েছে';
 }
@@ -131,13 +132,16 @@ async function doExport(){
   document.getElementById('dlBtn').style.display='none';
   setProg(0,'⏳ প্রিভিউ লোড হচ্ছে...');
   var iframe=document.getElementById('stage');
+  var wrap=document.getElementById('frameWrap');
   document.getElementById('previewPlaceholder').style.display='none';
-  changeShape();
+  // *** এইটাই ফিক্স - এক্সপোর্টের সময় iframe কে আসল W x H ফুল স্ক্রিনে নেওয়া ***
+  wrap.style.width=W+'px'; wrap.style.height=H+'px';
+  iframe.style.position='fixed'; iframe.style.left='0'; iframe.style.top='0'; iframe.style.zIndex='9999'; iframe.style.width=W+'px'; iframe.style.height=H+'px';
   iframe.srcdoc=makeExportHtml(h,W,H);
   await new Promise(function(res){setTimeout(res,1200)});
   var doc=null;
   try{ doc=iframe.contentDocument; }catch(e){ doc=null; }
-  if(!doc || !doc.body){ document.getElementById('out').innerText='⚠️ প্রিভিউ লোড হয় নাই, আবার প্রিভিউ দেখুন চাপ দাও'; btn.disabled=false; btn.innerText='⬇ এই সাইজে MP4 এক্সপোর্ট করুন'; return; }
+  if(!doc || !doc.body){ document.getElementById('out').innerText='⚠️ প্রিভিউ লোড হয় নাই, আবার প্রিভিউ দেখুন চাপ দাও'; btn.disabled=false; btn.innerText='⬇ এই সাইজে MP4 এক্সপোর্ট করুন'; showPreview(); return; }
   var canvas=document.getElementById('recCanvas');
   canvas.width=W; canvas.height=H;
   var ctx=canvas.getContext('2d');
@@ -163,7 +167,7 @@ async function doExport(){
     a.download='video-'+W+'x'+H+'-'+Date.now()+'.mp4';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function(){
-      document.getElementById('out').innerText='✅ ডাউনলোড হয়ে গেছে! সাইজ: '+W+'x'+H+' | সময়: '+dur+' সেকেন্ড | ফাইল: '+(blob.size/1024/1024).toFixed(2)+' MB';
+      document.getElementById('out').innerText='✅ ডাউনলোড হয়ে গেছে! সাইজ: '+W+'x'+H+' | সময়: '+dur+' সেকেন্ড | ফাইল: '+(blob.size/1024/1024).toFixed(2)+' MB - ফুল স্ক্রিন';
       btn.disabled=false; btn.innerText='⬇ এই সাইজে MP4 এক্সপোর্ট করুন';
       var dl=document.getElementById('dlBtn');
       dl.style.display='block';
@@ -186,6 +190,7 @@ async function doExport(){
         if(doc.defaultView) await new Promise(function(res){ doc.defaultView.requestAnimationFrame(function(){res()}); });
         var shot=await html2canvas(doc.body,{backgroundColor:'#000000',scale:1,windowWidth:W,windowHeight:H,width:W,height:H,x:0,y:0,useCORS:true,logging:false});
         ctx.fillStyle='#000'; ctx.fillRect(0,0,W,H);
+        // পুরা ক্যানভাস ভরে আঁকা - ছোট হবে না
         ctx.drawImage(shot,0,0,W,H);
       }catch(e){}
     }
