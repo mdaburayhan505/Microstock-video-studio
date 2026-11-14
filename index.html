@@ -130,14 +130,27 @@ function changeShape(){
   document.getElementById('shapeInfo').innerText='📐 এখন: '+txt;
 }
 function showPreview(){
-  var h=document.getElementById('code').value;
-  if(!h){document.getElementById('msg').innerText='⚠️ আগে কোড পেস্ট করো';return;}
-  document.getElementById('msg').innerText='⏳ প্রিভিউ লোড হচ্ছে...';
-  document.getElementById('frameWrap').style.display='block';
-  var f=document.getElementById('frame');
-  try{var doc=f.contentDocument||f.contentWindow.document;doc.open();doc.write(h);doc.close();document.getElementById('msg').innerText='✅ প্রিভিউ চলছে';}
-  catch(e){f.srcdoc=h;document.getElementById('msg').innerText='✅ প্রিভিউ চলছে';}
-}
+  var h = document.getElementById('code').value;
+  if(!h){ document.getElementById('msg').innerText = '⚠️ আগে কোড পেস্ট করো'; return; }
+  document.getElementById('msg').innerText = '⏳ প্রিভিউ লোড হচ্ছে...';
+  var wrap = document.getElementById('frameWrap');
+  wrap.style.display = 'block';
+  wrap.style.aspectRatio = '16/9';
+  wrap.style.width = '100%';
+  wrap.style.height = '260px';
+  var f = document.getElementById('frame');
+  f.style.display = 'block';
+  f.style.width = '100%';
+  f.style.height = '100%';
+  try{
+    var blob = new Blob([h], {type:'text/html'});
+    var url = URL.createObjectURL(blob);
+    f.src = url;
+    document.getElementById('msg').innerText = '✅ প্রিভিউ চলছে - ভিডিও আসছে';
+  }catch(e){
+    f.srcdoc = h;
+    document.getElementById('msg').innerText = '✅ প্রিভিউ চলছে';
+  }
 function play(){
   var dur=parseInt(document.getElementById('dur').value)||10;
   var sec=0;
