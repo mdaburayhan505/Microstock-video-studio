@@ -12,6 +12,9 @@ Microstock Video Studio
 * {
 box-sizing: border-box;
 }
+html, body {
+overflow-x: hidden;
+}
 body {
 margin: 0;
 background: #0b1023;
@@ -56,6 +59,7 @@ height: 100%;
 border: 0;
 background: #000;
 display: block;
+touch-action: pan-y;
 }
 #previewPlaceholder {
 position: absolute;
@@ -193,35 +197,4 @@ HTML কোড পেস্ট করো
 <button class="btn" onclick="loadSample()">
 নমুনা
 </button>
-<button class="btn" onclick="clearCode()">
-মুছুন
-</button>
-</div>
-<button class="btn-main" style="margin-top:10px" onclick="showPreview()">
-👁️ প্রিভিউ দেখুন
-</button>
-</div>
-<div class="box">
-<p style="font-weight:bold">
-৩. তোমার পছন্দের সাইজ বেছে নাও
-</p>
-<div class="grid">
-<div>
-<label>
-সাইজ / রেজোলিউশন
-</label>
-<select id="res" onchange="changeShape()">
-<option value="1280x720">
-ল্যান্ডস্কেপ 720p - 1280x720
-</option>
-<option value="1920x1080" selected>
-ল্যান্ডস্কেপ 1080p - 1920x1080
-</option>
-<option value="720x1280">
-ভার্টিকাল 720p - 720x1280 (Reels / TikTok)
-</option>
-<option value="1080x1920">
-ভার্টিকাল 1080p - 1080x1920
-</option>
-<option value="1080x1080">
-স্কয়ার 108
+<button class="btn"
