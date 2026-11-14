@@ -3,93 +3,154 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rotno Video Studio</title>
+<title>Microstock Video Studio</title>
 <style>
-*{box-sizing:border-box}body{background:#0a0a2e;color:#fff;font-family:sans-serif;padding:12px}
-.card{background:#13133a;border:1px solid #2a2a6a;border-radius:16px;padding:12px;margin-bottom:12px}
-textarea{width:100%;height:120px;background:#000;color:#fff;border:1px solid #333;border-radius:10px;padding:10px}
-button{padding:11px;border-radius:10px;border:none;font-weight:bold}
-.btn-main{width:100%;background:linear-gradient(90deg,#6aa8ff,#8b5cf6);color:#fff;padding:13px;font-size:16px}
-.redbar{background:#ff1744;color:#fff;width:100%;padding:13px;font-size:16px;margin:8px 0}
-select,input{width:100%;background:#000;color:#fff;padding:11px;border-radius:10px;border:1px solid #333;margin:4px 0}
-#frameWrap{display:none;background:#000;border:2px solid #8b5cf6;border-radius:10px;overflow:hidden;margin-top:10px;aspect-ratio:16/9;width:100%}
+*{box-sizing:border-box}body{background:#f2f2f2;color:#000;font-family:sans-serif;padding:10px}
+.header{border:2px solid #000;text-align:center;padding:12px;font-size:22px;font-weight:bold;background:#fff;margin-bottom:10px}
+.box{border:2px solid #000;background:#fff;padding:12px;margin-bottom:10px}
+.box h3{border:2px solid #000;display:inline-block;padding:5px 12px;margin:0 0 10px 0;font-size:18px;background:#fff}
+textarea{width:100%;height:130px;border:2px solid #000;padding:10px;font-size:14px}
+.redbar{background:#ff1744;color:#fff;width:100%;padding:13px;font-size:16px;font-weight:bold;border:2px solid #000;margin:8px 0}
+.btn{padding:11px 16px;border:2px solid #000;background:#fff;font-weight:bold}
+.btn-main{width:100%;background:#6aa8ff;color:#fff;padding:14px;font-size:18px;font-weight:bold;border:2px solid #000}
+#frameWrap{display:none;background:#000;border:2px solid #000;overflow:hidden;margin-top:10px;aspect-ratio:16/9;width:100%}
 #frame{width:100%;height:100%;border:none;background:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+select,input{width:100%;padding:11px;border:2px solid #000;font-size:16px;background:#fff}
+label{font-weight:bold;display:block;margin-bottom:4px}
+.small{font-size:13px;color:#555}
 </style>
 </head>
 <body>
-<h2 style="color:#b197fc">Rotno Video Studio <span style="background:#00e676;color:#000;font-size:13px;padding:3px 8px;border-radius:10px">ALL FREE ✅</span></h2>
-<div class="card">
-<p>১. কোড পেস্ট করো:</p>
-<textarea id="code" placeholder="এখানে কোড পেস্ট করো..."></textarea>
-<p id="cnt" style="font-size:13px;color:#aaa">কোড: 0 অক্ষর</p>
 
-<!-- মুছার বার - একদম সরাসরি, কোনো ফাংশনের উপর নির্ভর না -->
-<button class="redbar" onclick="document.getElementById('code').value='';document.getElementById('cnt').innerText='কোড: 0 অক্ষর - মুছে গেছে ✅';document.getElementById('frameWrap').style.display='none';document.getElementById('frame').src='about:blank';document.getElementById('msg').innerText='🗑️ কোড মুছে গেছে';alert('কোড মুছে গেছে ✅')">🗑️ পেস্ট করা কোড মুছে ফেলো - এখানে চাপ দাও</button>
+<!-- ১. হেডার - তোমার খাতার মতো -->
+<div class="header">MICROSTOCK VIDEO STUDIO</div>
+<p style="text-align:center">ভিডিও বানানোর জন্য HTML টুলস</p>
 
-<button onclick="document.getElementById('code').value='<!DOCTYPE html><html><head><title>Test</title></head><body style=&quot;background:orange;color:white;font-size:30px;text-align:center;padding:50px&quot;>Sunset Beach 4K<br>Test Video - প্রিভিউ ঠিক আছে</body></html>';document.getElementById('cnt').innerText='নমুনা কোড লোড হইছে';">নমুনা</button>
-<button onclick="document.getElementById('code').value='';document.getElementById('cnt').innerText='কোড: 0 অক্ষর - মুছে গেছে ✅';document.getElementById('frameWrap').style.display='none';alert('মুছে গেছে ✅')">মুছুন</button>
-
-<br><br>
-<button class="btn-main" onclick="showPreview()">👁️ প্রিভিউ দেখুন - এখানে চাপ দাও</button>
-<div id="frameWrap"><iframe id="frame"></iframe></div>
-<p id="msg" style="color:#8ab4ff;margin-top:8px">কোনো ভিডিও নাই</p>
+<!-- ২. HTML CODE বক্স -->
+<div class="box">
+<h3>১. HTML CODE পেস্ট করো</h3>
+<p class="small">এখানে তোমার ভিডিওর HTML CODE পেস্ট করো</p>
+<textarea id="code" placeholder="এখানে HTML CODE পেস্ট করো..."></textarea>
+<p id="cnt" style="font-size:13px">কোড: 0 অক্ষর</p>
+<button class="redbar" onclick="clearCode()">🗑️ পেস্ট করা কোড মুছে ফেলো</button>
+<div style="display:flex;gap:8px">
+<button class="btn" onclick="loadSample()">নমুনা</button>
+<button class="btn" onclick="clearCode()">মুছুন</button>
+<button class="btn" onclick="showPreview()">👁️ প্রিভিউ দেখুন</button>
+</div>
 </div>
 
-<div class="card">
-<label>📐 সাইজ - সব ফ্রি ✅</label>
+<!-- ৩. প্রিভিউ বক্স -->
+<div class="box">
+<h3>২. ভিডিওর প্রিভিউ</h3>
+<p class="small">প্রিভিউ দেখে নাও, ঠিক থাকলে নিচে এক্সপোর্ট করো</p>
+<div id="frameWrap"><iframe id="frame"></iframe></div>
+<p id="msg" style="color:#333">কোনো ভিডিও নাই - উপরে কোড পেস্ট করে প্রিভিউ চাপো</p>
+<p id="shapeInfo" style="font-weight:bold">📐 এখন: ল্যান্ডস্কেপ 16:9 - চওড়া</p>
+<div style="height:8px;background:#ddd;border:1px solid #000"><div id="fill" style="height:100%;background:#ffcc00;width:0%"></div></div>
+<p id="time">0s / 10s <button class="btn" onclick="play()">▶️ Play</button></p>
+</div>
+
+<!-- ৪. সেটিংস - তোমার খাতার মতো ৩টা বক্স -->
+<div class="grid">
+<div class="box">
+<h3>সাইজ / রেজোলিউশন</h3>
+<label>সাইজ বাছো</label>
 <select id="res" onchange="changeShape()">
-<option value="16/9|100%">ল্যান্ডস্কেপ 720p ✅ ফ্রি - চওড়া</option>
-<option value="16/9|100%">ল্যান্ডস্কেপ 1080p ✅ ফ্রি - চওড়া</option>
-<option value="16/9|100%" selected>ল্যান্ডস্কেপ 4K 3840x2160 ✅ ফ্রি - চওড়া</option>
-<option value="9/16|220px">ভার্টিকাল 720p ✅ ফ্রি - লম্বা</option>
-<option value="9/16|220px">ভার্টিকাল 4K ✅ ফ্রি - লম্বা</option>
-<option value="1/1|280px">স্কয়ার 1080 ✅ ফ্রি - চারকোণা</option>
+<option value="16/9|100%">ল্যান্ডস্কেপ 720p ✅ ফ্রি</option>
+<option value="16/9|100%">ল্যান্ডস্কেপ 1080p ✅ ফ্রি</option>
+<option value="16/9|100%" selected>ল্যান্ডস্কেপ 4K 3840x2160 ✅ ফ্রি</option>
+<option value="9/16|220px">ভার্টিকাল 720p ✅ ফ্রি</option>
+<option value="9/16|220px">ভার্টিকাল 1080p ✅ ফ্রি</option>
+<option value="9/16|220px">ভার্টিকাল 4K ✅ ফ্রি</option>
+<option value="1/1|280px">স্কয়ার 1080 ✅ ফ্রি</option>
+<option value="1/1|280px">স্কয়ার 4K ✅ ফ্রি</option>
 </select>
-<label>📦 ফাইল সাইজ</label>
-<select id="sz"><option value="0">আসল সাইজ</option><option value="5" selected>5 MB ✅ ফ্রি</option><option value="10">10 MB ✅ ফ্রি</option><option value="25">25 MB ✅ ফ্রি</option></select>
-<button class="btn-main" onclick="doExport()">⬇ MP4 এক্সপোর্ট করুন - ফ্রি</button>
-<p id="out" style="color:#00e676"></p>
+</div>
+
+<div class="box">
+<h3>ফ্রেমরেট</h3>
+<label>ফ্রেমরেট বাছো</label>
+<select id="fps">
+<option>30</option>
+<option>25</option>
+<option>24</option>
+<option>60</option>
+</select>
+<p class="small">সাধারণত 30 দিলেই হবে</p>
+</div>
+</div>
+
+<div class="grid">
+<div class="box">
+<h3>কোয়ালিটি</h3>
+<select id="quality">
+<option>হাই ✅ ফ্রি</option>
+<option>মাঝারি ✅ ফ্রি</option>
+<option>লো ✅ ফ্রি</option>
+</select>
+</div>
+<div class="box">
+<h3>সময় (সেকেন্ড)</h3>
+<input id="dur" value="10">
+<p class="small">১০ সেকেন্ডের ভিডিও বানাও</p>
+</div>
+</div>
+
+<!-- ৫. ফাইল সাইজ + এক্সপোর্ট -->
+<div class="box">
+<h3>📦 ফাইল সাইজ</h3>
+<select id="sz"><option value="0">আসল সাইজ</option><option value="5" selected>5 MB ✅ ফ্রি - Adobe / Shutterstock</option><option value="10">10 MB ✅ ফ্রি</option><option value="25">25 MB ✅ ফ্রি</option><option value="50">50 MB ✅ ফ্রি</option></select>
+<br><br>
+<button class="btn-main" onclick="doExport()">⬇ MP4 এক্সপোর্ট করুন</button>
+<p id="out" style="color:green;font-weight:bold"></p>
+<p class="small">✅ সব ফ্রি - কোনো Pro লক নাই। এক্সপোর্ট শেষ হলেই অটো ডাউনলোড হবে</p>
 </div>
 
 <script>
+function clearCode(){
+  document.getElementById('code').value='';
+  document.getElementById('cnt').innerText='কোড: 0 অক্ষর - মুছে গেছে ✅';
+  document.getElementById('frameWrap').style.display='none';
+  document.getElementById('frame').src='about:blank';
+  document.getElementById('msg').innerText='🗑️ কোড মুছে গেছে - এখন নতুন কোড পেস্ট করো';
+}
+function loadSample(){
+  document.getElementById('code').value='<!DOCTYPE html><html><head><title>Sunset Beach</title></head><body style="background:orange;color:white;font-size:30px;text-align:center;padding:50px">Sunset Beach 4K<br>Landscape Video</body></html>';
+  document.getElementById('cnt').innerText='নমুনা কোড লোড হইছে';
+  document.getElementById('msg').innerText='✅ নমুনা লোড হইছে, এখন প্রিভিউ দেখুন চাপো';
+}
 function changeShape(){
   var v=document.getElementById('res').value.split('|');
   var w=document.getElementById('frameWrap');
-  w.style.aspectRatio=v[0];
-  w.style.width=v[1];
+  w.style.aspectRatio=v[0]; w.style.width=v[1];
   if(v[1]!=='100%'){w.style.margin='10px auto'} else {w.style.margin='10px 0'}
+  var txt=document.getElementById('res').options[document.getElementById('res').selectedIndex].text;
+  document.getElementById('shapeInfo').innerText='📐 এখন: '+txt;
 }
 function showPreview(){
   var h=document.getElementById('code').value;
-  if(!h){alert('আগে কোড পেস্ট করো');return;}
+  if(!h){document.getElementById('msg').innerText='⚠️ আগে কোড পেস্ট করো';return;}
   document.getElementById('msg').innerText='⏳ প্রিভিউ লোড হচ্ছে...';
   document.getElementById('frameWrap').style.display='block';
   var f=document.getElementById('frame');
-  // সবচেয়ে নির্ভরযোগ্য পদ্ধতি - সরাসরি iframe এ লেখা
-  try{
-    var doc=f.contentDocument || f.contentWindow.document;
-    doc.open(); doc.write(h); doc.close();
-    document.getElementById('msg').innerText='✅ প্রিভিউ চলছে - ভিডিও আসছে';
-  }catch(e){
-    f.srcdoc=h;
-    document.getElementById('msg').innerText='✅ প্রিভিউ চলছে (2nd পদ্ধতি)';
-  }
+  try{var doc=f.contentDocument||f.contentWindow.document;doc.open();doc.write(h);doc.close();document.getElementById('msg').innerText='✅ প্রিভিউ চলছে';}
+  catch(e){f.srcdoc=h;document.getElementById('msg').innerText='✅ প্রিভিউ চলছে';}
+}
+function play(){
+  var dur=parseInt(document.getElementById('dur').value)||10;
+  var sec=0;
+  var t=setInterval(function(){sec+=0.5;if(sec>=dur){clearInterval(t);sec=dur}document.getElementById('fill').style.width=(sec/dur*100)+'%';document.getElementById('time').innerText=sec.toFixed(1)+'s / '+dur+'s';},500);
 }
 function doExport(){
   var h=document.getElementById('code').value;
-  if(!h){alert('আগে কোড পেস্ট করো');return;}
+  if(!h){document.getElementById('out').innerText='⚠️ আগে কোড পেস্ট করো';return;}
   var mb=parseFloat(document.getElementById('sz').value);
   var finalCode=h;
-  if(mb>0){
-    var target=mb*1024*1024; var cur=new Blob([h]).size;
-    if(target>cur){
-      var need=target-cur-100;
-      var pad='A'.repeat(need);
-      finalCode=h+'\n<!-- '+pad+' -->';
-    }
-  }
+  if(mb>0){var target=mb*1024*1024;var cur=new Blob([h]).size;if(target>cur){var need=target-cur-100;var pad='A'.repeat(need);finalCode=h+'\n<!-- '+pad+' -->';}}
   var b=new Blob([finalCode],{type:'text/html'});
-  var a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='rotno-video-4k-'+(mb||'org')+'MB.html'; a.click();
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='microstock-video-'+(mb||'org')+'MB.html';a.click();
   document.getElementById('out').innerText='✅ ডাউনলোড হয়ে গেছে! সাইজ: '+(new Blob([finalCode]).size/1024/1024).toFixed(2)+' MB';
 }
 document.getElementById('code').addEventListener('input',function(){document.getElementById('cnt').innerText='কোড: '+this.value.length+' অক্ষর'});
