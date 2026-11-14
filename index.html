@@ -27,19 +27,16 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 </style>
 </head>
 <body>
-<div class="top"><b>Microstock Video Studio</b><span class="free">FREE</span></div>
+<div class="top"><b>Video Studio</b><span class="free">FREE</span></div>
 <p class="small"></p>
 
-<!-- ১. প্রিভিউ সবার উপরে -->
 <div class="box">
 <div id="frameWrap">
 <div id="previewPlaceholder">প্রিভিউ এখানে আসবে</div>
 <iframe id="stage" sandbox="allow-scripts allow-same-origin" style="position:relative;z-index:2"></iframe></div>
 <p id="msg" style="color:#a7f3d0">কোড পেস্ট করো, প্রিভিউ এখানে আসবে</p>
-<p id="sizeShow" style="color:#facc15;font-weight:bold"></p>
 </div>
 
-<!-- ২. কোড -->
 <div class="box">
 <p>HTML কোড পেস্ট করো</p>
 <textarea id="code" placeholder="এখানে HTML CODE পেস্ট করো..."></textarea>
@@ -51,7 +48,6 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 <button class="btn-main" style="margin-top:10px" onclick="showPreview()">👁️ প্রিভিউ দেখুন</button>
 </div>
 
-<!-- ৩. তোমার পছন্দের সাইজ + এক্সপোর্ট -->
 <div class="box">
 <p style="font-weight:bold">৩. তোমার পছন্দের সাইজ বেছে নাও</p>
 <div class="grid">
@@ -79,31 +75,24 @@ label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
 
 <script>
 let lastBlobUrl = null;
-
 function getRes(){ var v=document.getElementById('res').value.split('x'); return {W:parseInt(v[0]), H:parseInt(v[1])}; }
-
 function clearCode(){ document.getElementById('code').value=''; document.getElementById('cnt').innerText='কোড: 0 অক্ষর'; document.getElementById('stage').srcdoc=''; document.getElementById('previewPlaceholder').style.display='flex'; document.getElementById('msg').innerText='মুছে গেছে'; }
-
 function loadSample(){
   document.getElementById('code').value='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0}html,body{width:100%;height:100%;overflow:hidden;background:#030713}.sun{width:140px;height:140px;background:#fff200;border-radius:50%;position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 80px 30px #fff200;animation:sun 3s ease-in-out infinite alternate}@keyframes sun{from{top:20%}to{top:45%}}.sea{position:absolute;bottom:0;width:100%;height:35%;background:linear-gradient(#00c6ff,#0072ff)}.title{position:absolute;top:62%;width:100%;text-align:center;color:white;font-size:32px;font-weight:bold}</style></head><body><div class="sun"></div><div class="sea"></div><div class="title">Sunset Beach</div></body></html>';
   showPreview();
 }
-
 function changeShape(){
   var r=getRes();
   var w=document.getElementById('frameWrap');
   if(r.H>r.W) w.style.height='380px';
   else if(r.W===r.H) w.style.height='320px';
   else w.style.height='220px';
-  document.getElementById('sizeShow').innerText='📐 প্রিভিউ সাইজ: '+r.W+'x'+r.H+' - এই সাইজেই এক্সপোর্ট হবে';
   if(document.getElementById('code').value.length>10) showPreview();
 }
-
 function makeFullHtml(h){
   if(h.indexOf('<html')!==-1) return h;
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden}</style></head><body>'+h+'</body></html>';
 }
-
 function showPreview(){
   var h=document.getElementById('code').value;
   if(!h || h.length<10){ document.getElementById('msg').innerText='⚠️ আগে কোড পেস্ট করো'; return; }
@@ -114,13 +103,11 @@ function showPreview(){
   if(r.H>r.W) w.style.height='380px';
   else if(r.W===r.H) w.style.height='320px';
   else w.style.height='220px';
-  document.getElementById('sizeShow').innerText='📐 প্রিভিউ সাইজ: '+r.W+'x'+r.H+' - এই সাইজেই এক্সপোর্ট হবে';
   var iframe=document.getElementById('stage');
   iframe.srcdoc='';
   setTimeout(function(){ iframe.srcdoc=makeFullHtml(h); },30);
   document.getElementById('msg').innerText='';
 }
-
 async function doExport(){
   var h=document.getElementById('code').value;
   if(!h){ document.getElementById('out').innerText='⚠️ আগে কোড পেস্ট করো'; return; }
@@ -181,7 +168,6 @@ async function doExport(){
   }
   loop();
 }
-
 document.getElementById('code').addEventListener('input',function(){
   document.getElementById('cnt').innerText='কোড: '+this.value.length+' অক্ষর';
 });
