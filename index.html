@@ -85,7 +85,7 @@ label{font-weight:bold;display:block;margin-bottom:4px}
 <select id="quality">
 <option>হাই ✅ ফ্রি</option>
 <option>মাঝারি ✅ ফ্রি</option>
-<option>লো ✅ ফ্রি</option>
+<option>ম্যাক্স ✅ ফ্রি</option>
 </select>
 </div>
 <div class="box">
@@ -97,8 +97,6 @@ label{font-weight:bold;display:block;margin-bottom:4px}
 
 <!-- ৫. ফাইল সাইজ + এক্সপোর্ট -->
 <div class="box">
-<h3>📦 ফাইল সাইজ</h3>
-<select id="sz"><option value="0">আসল সাইজ</option><auto></auto>
 <br><br>
 <button class="btn-main" onclick="doExport()">⬇ MP4 এক্সপোর্ট করুন</button>
 <p id="out" style="color:green;font-weight:bold"></p>
@@ -127,27 +125,19 @@ function changeShape(){
   document.getElementById('shapeInfo').innerText='📐 এখন: '+txt;
 }
 function showPreview(){
-  var h = document.getElementById('code').value;
-  if(!h){ document.getElementById('msg').innerText = '⚠️ আগে কোড পেস্ট করো'; return; }
-  document.getElementById('msg').innerText = '⏳ প্রিভিউ লোড হচ্ছে...';
-  var wrap = document.getElementById('frameWrap');
-  wrap.style.display = 'block';
-  wrap.style.aspectRatio = '16/9';
-  wrap.style.width = '100%';
-  wrap.style.height = '260px';
-  var f = document.getElementById('frame');
-  f.style.display = 'block';
-  f.style.width = '100%';
-  f.style.height = '100%';
-  try{
-    var blob = new Blob([h], {type:'text/html'});
-    var url = URL.createObjectURL(blob);
-    f.src = url;
-    document.getElementById('msg').innerText = '✅ প্রিভিউ চলছে - ভিডিও আসছে';
-  }catch(e){
-    f.srcdoc = h;
-    document.getElementById('msg').innerText = '✅ প্রিভিউ চলছে';
-  }
+  var h=document.getElementById('code').value;
+  if(!h){document.getElementById('msg').innerText='⚠️ আগে কোড পেস্ট করো';return;}
+  document.getElementById('msg').innerText='⏳ প্রিভিউ লোড হচ্ছে...';
+  document.getElementById('frameWrap').style.display='block';
+  var f=document.getElementById('frame');
+  try{var doc=f.contentDocument||f.contentWindow.document;doc.open();doc.write(h);doc.close();document.getElementById('msg').innerText='✅ প্রিভিউ চলছে';}
+  catch(e){f.srcdoc=h;document.getElementById('msg').innerText='✅ প্রিভিউ চলছে';}
+}
+function play(){
+  var dur=parseInt(document.getElementById('dur').value)||10;
+  var sec=0;
+  var t=setInterval(function(){sec+=0.5;if(sec>=dur){clearInterval(t);sec=dur}document.getElementById('fill').style.width=(sec/dur*100)+'%';document.getElementById('time').innerText=sec.toFixed(1)+'s / '+dur+'s';},500);
+}
 function doExport(){
   var h=document.getElementById('code').value;
   if(!h){document.getElementById('out').innerText='⚠️ আগে কোড পেস্ট করো';return;}
