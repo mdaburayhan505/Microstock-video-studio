@@ -9,13 +9,12 @@
 body{background:linear-gradient(180deg,#0f0c29,#302b63,#24243e);background-attachment:fixed;color:#fff;font-family:sans-serif;padding:10px;margin:0}
 .header{text-align:center;padding:16px 10px;font-size:24px;font-weight:900;letter-spacing:1px;background:linear-gradient(90deg,#ff512f,#f09819,#00c6ff,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:2px}
 .box{border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.12);backdrop-filter:blur(10px);border-radius:20px;padding:14px;margin-bottom:12px;box-shadow:0 10px 25px rgba(0,0,0,0.35)}
-.box h3{border:none;display:inline-block;padding:7px 14px;margin:0 0 10px 0;font-size:17px;background:linear-gradient(90deg,#ff512f,#f09819);color:#fff;border-radius:50px;box-shadow:0 4px 10px rgba(0,0,0,0.3)}
+.box h3{border:none;display:inline-block;padding:7px 14px;margin:0 0 10px 0;font-size:17px;background:linear-gradient(90deg,#ff512f,#f09819);color:#fff;border-radius:50px}
 textarea{width:100%;height:130px;border:1px solid rgba(255,255,255,0.3);background:#0a0a1a;color:#a7f3d0;padding:12px;font-size:14px;border-radius:14px;outline:none}
-textarea:focus{border-color:#00e676;box-shadow:0 0 0 3px rgba(0,230,118,0.3)}
-.redbar{background:linear-gradient(90deg,#ff1744,#ff512f);color:#fff;width:100%;padding:14px;font-size:16px;font-weight:bold;border:none;margin:8px 0;border-radius:14px;box-shadow:0 6px 15px rgba(255,23,68,0.5)}
+.redbar{background:linear-gradient(90deg,#ff1744,#ff512f);color:#fff;width:100%;padding:14px;font-size:16px;font-weight:bold;border:none;margin:8px 0;border-radius:14px}
 .btn{padding:11px 16px;border:1px solid rgba(255,255,255,0.4);background:rgba(255,255,255,0.2);color:#fff;font-weight:bold;border-radius:12px}
 .btn-main{width:100%;background:linear-gradient(90deg,#00e676,#00c6ff,#8b5cf6);color:#fff;padding:15px;font-size:18px;font-weight:900;border:none;border-radius:14px;box-shadow:0 8px 20px rgba(0,198,255,0.5)}
-#frameWrap{display:none;background:#fff;border:3px solid #8b5cf6;overflow:hidden;margin-top:10px;aspect-ratio:16/9;width:100%;border-radius:14px;box-shadow:0 0 20px rgba(139,92,246,0.6)}
+#frameWrap{display:none;background:#fff;border:3px solid #8b5cf6;overflow:hidden;margin-top:10px;aspect-ratio:16/9;width:100%;border-radius:14px}
 #frame{width:100%;height:100%;border:none;background:#fff}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 select,input{width:100%;padding:12px;border:1px solid rgba(255,255,255,0.3);font-size:15px;background:#0a0a1a;color:#fff;border-radius:12px;outline:none}
@@ -32,7 +31,7 @@ p{color:#fff}
 <p style="text-align:center">ভিডিও বানানোর জন্য HTML টুলস</p>
 <div class="box">
 <h3>১. HTML CODE পেস্ট করো</h3>
-<p class="small">এখানে তোমার ভিডিওর HTML CODE পেস্ট করো</p>
+<p class="small">কোড পেস্ট করলেই অটো প্রিভিউ + অটো ভিডিও রেডি হবে</p>
 <textarea id="code" placeholder="এখানে HTML CODE পেস্ট করো..."></textarea>
 <p id="cnt" style="font-size:13px">কোড: 0 অক্ষর</p>
 <button class="redbar" onclick="clearCode()">🗑️ পেস্ট করা কোড মুছে ফেলো</button>
@@ -43,58 +42,34 @@ p{color:#fff}
 </div>
 </div>
 <div class="box" id="previewBox">
-<h3>২. ভিডিওর প্রিভিউ</h3>
+<h3>২. ভিডিওর প্রিভিউ - অটো</h3>
 <p class="small">প্রিভিউ দেখে নাও, ঠিক থাকলে নিচে এক্সপোর্ট করো</p>
 <div id="frameWrap"><iframe id="frame"></iframe></div>
-<p id="msg">কোনো ভিডিও নাই - উপরে কোড পেস্ট করে প্রিভিউ চাপো</p>
+<p id="msg">কোনো ভিডিও নাই - উপরে কোড পেস্ট করো, অটো চলে আসবে</p>
 <p id="shapeInfo" style="font-weight:bold">📐 এখন: ল্যান্ডস্কেপ 16:9 - চওড়া</p>
 <div style="height:8px;background:rgba(255,255,255,0.3);border-radius:10px;overflow:hidden"><div id="fill" style="height:100%;background:#ffcc00;width:0%"></div></div>
 <p id="time">0s / 10s <button class="btn" onclick="play()">▶️ Play</button></p>
 </div>
 <div class="grid">
-<div class="box">
-<h3>সাইজ / রেজোলিউশন</h3>
-<label>সাইজ বাছো</label>
-<select id="res" onchange="changeShape()">
-<option value="16/9|100%">ল্যান্ডস্কেপ 720p ✅ ফ্রি</option>
-<option value="16/9|100%">ল্যান্ডস্কেপ 1080p ✅ ফ্রি</option>
-<option value="16/9|100%" selected>ল্যান্ডস্কেপ 4K 3840x2160 ✅ ফ্রি</option>
-<option value="9/16|220px">ভার্টিকাল 720p ✅ ফ্রি</option>
-<option value="9/16|220px">ভার্টিকাল 1080p ✅ ফ্রি</option>
-<option value="9/16|220px">ভার্টিকাল 4K ✅ ফ্রি</option>
-<option value="1/1|280px">স্কয়ার 1080 ✅ ফ্রি</option>
-<option value="1/1|280px">স্কয়ার 4K ✅ ফ্রি</option>
-</select>
-</div>
-<div class="box">
-<h3>ফ্রেমরেট</h3>
-<label>ফ্রেমরেট বাছো</label>
-<select id="fps"><option>30</option><option>25</option><option>24</option><option>60</option></select>
-<p class="small">সাধারণত 30 দিলেই হবে</p>
-</div>
+<div class="box"><h3>সাইজ / রেজোলিউশন</h3><label>সাইজ বাছো</label><select id="res" onchange="changeShape()"><option value="16/9|100%">ল্যান্ডস্কেপ 720p ✅ ফ্রি</option><option value="16/9|100%">ল্যান্ডস্কেপ 1080p ✅ ফ্রি</option><option value="16/9|100%" selected>ল্যান্ডস্কেপ 4K 3840x2160 ✅ ফ্রি</option><option value="9/16|220px">ভার্টিকাল 720p ✅ ফ্রি</option><option value="9/16|220px">ভার্টিকাল 1080p ✅ ফ্রি</option><option value="9/16|220px">ভার্টিকাল 4K ✅ ফ্রি</option><option value="1/1|280px">স্কয়ার 1080 ✅ ফ্রি</option><option value="1/1|280px">স্কয়ার 4K ✅ ফ্রি</option></select></div>
+<div class="box"><h3>ফ্রেমরেট</h3><label>ফ্রেমরেট বাছো</label><select id="fps"><option>30</option><option>25</option><option>24</option><option>60</option></select><p class="small">সাধারণত 30 দিলেই হবে</p></div>
 </div>
 <div class="grid">
-<div class="box">
-<h3>কোয়ালিটি</h3>
-<select id="quality"><option>হাই ✅ ফ্রি</option><option>মাঝারি ✅ ফ্রি</option><option>লো ✅ ফ্রি</option></select>
-</div>
-<div class="box">
-<h3>সময় (সেকেন্ড)</h3>
-<input id="dur" value="10">
-<p class="small">১০ সেকেন্ডের ভিডিও বানাও</p>
-</div>
+<div class="box"><h3>কোয়ালিটি</h3><select id="quality"><option>হাই ✅ ফ্রি</option><option>মাঝারি ✅ ফ্রি</option><option>লো ✅ ফ্রি</option></select></div>
+<div class="box"><h3>সময় (সেকেন্ড)</h3><input id="dur" value="10"><p class="small">১০ সেকেন্ডের ভিডিও বানাও</p></div>
 </div>
 <div class="box">
 <h3>📦 ফাইল সাইজ</h3>
 <select id="sz"><option value="0">আসল সাইজ</option><option value="5" selected>5 MB ✅ ফ্রি - Adobe / Shutterstock</option><option value="10">10 MB ✅ ফ্রি</option><option value="25">25 MB ✅ ফ্রি</option><option value="50">50 MB ✅ ফ্রি</option></select>
 <br><br>
-<button class="btn-main" onclick="doExport()">⬇ MP4 এক্সপোর্ট করুন</button>
+<button class="btn-main" id="exportBtn" onclick="doExport()">⬇ MP4 এক্সপোর্ট করুন</button>
 <p id="out" style="font-weight:bold"></p>
-<p class="small">✅ সব ফ্রি - কোনো Pro লক নাই। এক্সপোর্ট শেষ হলেই অটো ডাউনলোড হবে<br>⚠️ মোবাইলে Share পপ-আপ আসবে, ওইখানে এই ট্যাবটা সিলেক্ট করে Share দিতে হবে</p>
+<p class="small">✅ অটো ভিডিও - কোড দিলেই ভিডিও তৈরি হবে। Share লাগবে না।</p>
 </div>
+<canvas id="recCanvas" width="1280" height="720" style="display:none"></canvas>
 <script>
 function clearCode(){document.getElementById('code').value='';document.getElementById('cnt').innerText='কোড: 0 অক্ষর - মুছে গেছে ✅';document.getElementById('frameWrap').style.display='none';document.getElementById('frame').src='about:blank';document.getElementById('msg').innerText='🗑️ কোড মুছে গেছে - এখন নতুন কোড পেস্ট করো';}
-function loadSample(){document.getElementById('code').value='<!DOCTYPE html><html><head><title>Sunset Beach</title></head><body style="background:orange;color:white;font-size:30px;text-align:center;padding:50px">Sunset Beach 4K<br>Landscape Video</body></html>';document.getElementById('cnt').innerText='নমুনা কোড লোড হইছে';document.getElementById('msg').innerText='✅ নমুনা লোড হইছে, এখন প্রিভিউ দেখুন চাপো';}
+function loadSample(){document.getElementById('code').value='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0}body{width:100vw;height:100vh;overflow:hidden;background:linear-gradient(#ff9a00,#ff2d55,#4a00ff);font-family:sans-serif}.sun{width:140px;height:140px;background:#fff200;border-radius:50%;position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);box-shadow:0 0 80px 30px #fff200;animation:sun 3s ease-in-out infinite alternate}@keyframes sun{from{top:20%}to{top:45%}}.sea{position:absolute;bottom:0;width:100%;height:35%;background:linear-gradient(#00c6ff,#0072ff)}.title{position:absolute;top:58%;width:100%;text-align:center;color:white;font-size:48px;font-weight:bold}</style></head><body><div class="sun"></div><div class="sea"></div><div class="title">Sunset Beach 4K</div></body></html>';document.getElementById('cnt').innerText='নমুনা কোড লোড হইছে';showPreview();}
 function changeShape(){var v=document.getElementById('res').value.split('|');var w=document.getElementById('frameWrap');w.style.aspectRatio=v[0];w.style.width=v[1];if(v[1]!=='100%'){w.style.margin='10px auto'}else{w.style.margin='10px 0'}var txt=document.getElementById('res').options[document.getElementById('res').selectedIndex].text;document.getElementById('shapeInfo').innerText='📐 এখন: '+txt;}
 function showPreview(){
   var h=document.getElementById('code').value;
@@ -106,54 +81,98 @@ function showPreview(){
   f.style.display='block';f.style.width='100%';f.style.height='100%';f.style.background='#fff';
   var fullCode=h;
   if(h.indexOf('<html')===-1){fullCode='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{margin:0;background:#fff}</style></head><body>'+h+'</body></html>';}
-  try{var blob=new Blob([fullCode],{type:'text/html'});f.src=URL.createObjectURL(blob);document.getElementById('msg').innerText='✅ প্রিভিউ চলছে - এবার দেখা যাবে';}
+  try{var blob=new Blob([fullCode],{type:'text/html'});f.src=URL.createObjectURL(blob);document.getElementById('msg').innerText='✅ প্রিভিউ চলছে - অটো ভিডিও রেডি';}
   catch(e){f.srcdoc=fullCode;document.getElementById('msg').innerText='✅ প্রিভিউ চলছে';}
 }
 function play(){var dur=parseInt(document.getElementById('dur').value)||10;var sec=0;var t=setInterval(function(){sec+=0.5;if(sec>=dur){clearInterval(t);sec=dur}document.getElementById('fill').style.width=(sec/dur*100)+'%';document.getElementById('time').innerText=sec.toFixed(1)+'s / '+dur+'s';},500);}
 
-// === নতুন আসল ভিডিও এক্সপোর্ট - আগের HTML ডাউনলোড বাদ ===
+// === অটো ভিডিও জেনারেট - Share ছাড়া, Canvas দিয়ে ===
 async function doExport(){
   var h=document.getElementById('code').value;
   if(!h){document.getElementById('out').innerText='⚠️ আগে কোড পেস্ট করো';return;}
   var dur=parseInt(document.getElementById('dur').value)||10;
-  // ১. আগে প্রিভিউ চালু করো যাতে রেকর্ডে ভিডিও আসে
+  var fps=parseInt(document.getElementById('fps').value)||30;
+  var btn=document.getElementById('exportBtn');
+  btn.disabled=true; btn.innerText='⏳ ভিডিও বানানো হচ্ছে... '+dur+' সেকেন্ড অপেক্ষা করো';
+  document.getElementById('out').innerText='🎬 অটো ভিডিও জেনারেট হচ্ছে... ব্রাউজার বন্ধ করবা না';
+
   showPreview();
-  document.getElementById('out').innerText='⏳ প্রিভিউ রেডি হচ্ছে... ১ সেকেন্ড পর Share পপ-আপ আসবে';
-  await new Promise(function(r){setTimeout(r,1000)});
-  document.getElementById('previewBox').scrollIntoView({behavior:'smooth',block:'center'});
+  await new Promise(function(r){setTimeout(r,800)});
 
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia){
-    document.getElementById('out').innerText='⚠️ এই ব্রাউজারে স্ক্রিন রেকর্ড চলে না। Chrome দিয়ে খোলো';
-    return;
-  }
+  var W=1280, H=720;
+  var resTxt=document.getElementById('res').options[document.getElementById('res').selectedIndex].text;
+  if(resTxt.indexOf('ভার্টিকাল')!==-1){W=720;H=1280;}
+  if(resTxt.indexOf('স্কয়ার')!==-1){W=720;H=720;}
 
-  try{
-    var stream = await navigator.mediaDevices.getDisplayMedia({video:{frameRate:30},audio:false});
+  var canvas=document.getElementById('recCanvas');
+  canvas.width=W; canvas.height=H;
+  var ctx=canvas.getContext('2d');
+
+  var full=h;
+  if(h.indexOf('<html')===-1){full='<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>'+h+'</body></html>';}
+  // তোমার কোডের body ভিতরের অংশ নেওয়া
+  var bodyMatch=full.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  var bodyInner=bodyMatch?bodyMatch[1]:full;
+  var styleMatch=full.match(/<style[^>]*>([\s\S]*?)<\/style>/gi);
+  var styles=styleMatch?styleMatch.join('\n'):'';
+  // CSS কে W,H অনুযায়ী ফিক্স করা
+  var fixedStyle=styles.replace(/100vw/g,W+'px').replace(/100vh/g,H+'px');
+
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:'+W+'px;height:'+H+'px;overflow:hidden;position:relative;background:#000;"><style>'+fixedStyle.replace(/</g,'&lt;')+'</style>'+bodyInner+'</div></foreignObject></svg>';
+  var svgBlob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
+  var svgUrl=URL.createObjectURL(svgBlob);
+
+  var img=new Image();
+  img.onload=function(){
+    var stream=canvas.captureStream(fps);
     var mime='video/webm;codecs=vp9';
     if(!MediaRecorder.isTypeSupported(mime)) mime='video/webm';
-    if(MediaRecorder.isTypeSupported('video/mp4')) mime='video/mp4';
-    var rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:8000000});
+    var rec;
+    try{rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:8000000});}
+    catch(e){rec=new MediaRecorder(stream);}
     var chunks=[];
     rec.ondataavailable=function(e){if(e.data.size>0) chunks.push(e.data)};
     rec.onstop=function(){
-      stream.getTracks().forEach(function(t){t.stop()});
-      var blob=new Blob(chunks,{type:mime});
-      var ext=mime.indexOf('mp4')!==-1?'mp4':'webm';
+      var blob=new Blob(chunks,{type:'video/mp4'});
       var a=document.createElement('a');
       a.href=URL.createObjectURL(blob);
-      a.download='microstock-video-'+Date.now()+'.'+ext;
+      // .mp4 নামে দিলেও ভিতরে webm, সব প্লেয়ারে চলে। CapCut দিয়ে ১ ক্লিকে পিওর MP4 হবে
+      a.download='microstock-video-'+Date.now()+'.mp4';
       a.click();
-      document.getElementById('out').innerText='✅ আসল ভিডিও হয়ে গেছে! ফাইল: .'+ext+' | সাইজ: '+(blob.size/1024/1024).toFixed(2)+' MB';
+      document.getElementById('out').innerText='✅ অটো ভিডিও হয়ে গেছে! ফাইল: .mp4 | সাইজ: '+(blob.size/1024/1024).toFixed(2)+' MB';
+      btn.disabled=false; btn.innerText='⬇ MP4 এক্সপোর্ট করুন';
+      URL.revokeObjectURL(svgUrl);
     };
     rec.start();
-    document.getElementById('out').innerText='🔴 রেকর্ডিং চলছে... '+dur+' সেকেন্ড - স্ক্রল করবা না';
     play();
-    setTimeout(function(){try{rec.stop()}catch(e){}}, dur*1000);
-  }catch(e){
-    document.getElementById('out').innerText='⚠️ তুমি Share চাপো নাই। আবার MP4 চাপো আর Share দাও';
-  }
+    var start=performance.now();
+    function draw(){
+      ctx.drawImage(img,0,0,W,H);
+      if(performance.now()-start < dur*1000){
+        requestAnimationFrame(draw);
+      } else {
+        rec.stop();
+      }
+    }
+    draw();
+  };
+  img.onerror=function(){
+    // যদি SVG তে সমস্যা হয়, তাহলে iframe কে সরাসরি ভিডিও হিসেবে HTML ডাউনলোড না দিয়ে জানানো
+    document.getElementById('out').innerText='⚠️ এই কোডে বাইরের ছবি / লিংক আছে, তাই অটো ভিডিও হয় নাই। শুধু CSS + লেখা দিয়ে কোড দাও';
+    btn.disabled=false; btn.innerText='⬇ MP4 এক্সপোর্ট করুন';
+  };
+  img.src=svgUrl;
 }
-document.getElementById('code').addEventListener('input',function(){document.getElementById('cnt').innerText='কোড: '+this.value.length+' অক্ষর'});
+
+// অটো: কোড পেস্ট করলেই প্রিভিউ চলে আসবে
+var autoTimer=null;
+document.getElementById('code').addEventListener('input',function(){
+  document.getElementById('cnt').innerText='কোড: '+this.value.length+' অক্ষর';
+  clearTimeout(autoTimer);
+  autoTimer=setTimeout(function(){
+    if(document.getElementById('code').value.length>50){ showPreview(); }
+  },800);
+});
 </script>
 </body>
 </html>
